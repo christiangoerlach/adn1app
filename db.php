@@ -1,11 +1,13 @@
 23:32
 
 <?php
-$serverName = "tcp:adndb.database.windows.net,1433";
+$env = parse_ini_file(__DIR__ . '/.env');
+
+$serverName = $env['DB_SERVER'];
 $connectionOptions = [
-    "Database" => "adn_db",
-    "Uid" => "adn_db", // oft im Format: benutzer@servername
-    "PWD" => "Ericgmetro1!",
+    "Database" => $env['DB_NAME'],
+    "Uid" => $env['DB_USER'],
+    "PWD" => $env['DB_PASS'],
     "Encrypt" => 1,
     "TrustServerCertificate" => 0
 ];
