@@ -1,4 +1,4 @@
-23:48
+23:51
 
 <?php
 
@@ -14,6 +14,7 @@ $connectionOptions = [
     "Encrypt" => 1,
     "TrustServerCertificate" => 0
 ];
+printf($serverName);
 
 // Verbindung aufbauen
 $conn = sqlsrv_connect($serverName, $connectionOptions);
