@@ -1,13 +1,16 @@
-23:42
+23:48
 
 <?php
-$env = parse_ini_file(__DIR__ . '/.env');
 
-$serverName = $env['DB_SERVER'];
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+$serverName = $_ENV['DB_SERVER'];
 $connectionOptions = [
-    "Database" => $env['DB_NAME'],
-    "Uid" => $env['DB_USER'],
-    "PWD" => $env['DB_PASS'],
+    "Database" => $_ENV['DB_NAME'],
+    "Uid" => $_ENV['DB_USER'],
+    "PWD" => $_ENV['DB_PASS'],
     "Encrypt" => 1,
     "TrustServerCertificate" => 0
 ];
@@ -22,7 +25,7 @@ if ($conn === false) {
 echo "Verbindung erfolgreich!<br>";
 
 // Beispielabfrage
-$sql = "SELECT TOP 10 * FROM [dbo].[ImageRegistry]";
+$sql = "SELECT * FROM [dbo].[ImageRegistry]";
 $stmt = sqlsrv_query($conn, $sql);
 
 if ($stmt === false) {
