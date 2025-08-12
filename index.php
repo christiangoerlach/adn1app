@@ -58,7 +58,7 @@ if ($currentIndex >= count($images)) $currentIndex = count($images) - 1;
 </head>
 <body>
 
-<h1>21:34 Bilder aus Azure Blob Storage</h1>
+<h1>21:39 Bilder aus Azure Blob Storage</h1>
 
 <?php if (count($images) > 0): ?>
     <img src="<?= htmlspecialchars($images[$currentIndex]) ?>" alt="Bild <?= $currentIndex + 1 ?>" />
