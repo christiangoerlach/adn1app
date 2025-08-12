@@ -1,3 +1,5 @@
+23:32
+
 <?php
 $serverName = "tcp:adndb.database.windows.net,1433";
 $connectionOptions = [
@@ -18,7 +20,7 @@ if ($conn === false) {
 echo "Verbindung erfolgreich!<br>";
 
 // Beispielabfrage
-$sql = "SELECT TOP 10 * FROM deine_tabelle";
+$sql = "SELECT TOP 10 * FROM [dbo].[ImageRegistry]";
 $stmt = sqlsrv_query($conn, $sql);
 
 if ($stmt === false) {
