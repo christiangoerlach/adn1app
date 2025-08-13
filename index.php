@@ -1,8 +1,8 @@
-1309
+1312
 
 <?php
 // DB-Verbindung laden
-require_once 'db.php';e_once __DIR__ . '/db.php'; // Pfad anpassen!
+require_once 'db.php'; // DB-Verbindung + .env geladen
 
 // Projekte abrufen
 $options = [];
