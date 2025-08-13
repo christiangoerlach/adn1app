@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-require_once 'db.php'; // DB-Verbindung + .env geladen
+require_once '../db.php'; // DB-Verbindung + .env geladen
 
 // Hole Blob-Base-URL aus Umgebungsvariablen
 $blobBaseUrl = $_ENV['BLOB_BASE_URL'] ?? '';
