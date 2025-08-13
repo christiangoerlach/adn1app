@@ -11,7 +11,7 @@ require_once 'db.php'; // stellt $conn bereit
 // Projekte abrufen
 $options = [];
 try {
-    $stmt = $conn->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY Projektname ASC");
+    $stmt = $conn->query("SELECT Id, Projektname FROM [dbo].[projects]");
     $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "DB-Fehler: " . $e->getMessage();
