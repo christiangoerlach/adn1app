@@ -1,33 +1,22 @@
 <?php
-require 'vendor/autoload.php';
+header('Content-Type: application/json');
 
-use MicrosoftAzure\Storage\Blob\BlobRestProxy;
-use MicrosoftAzure\Storage\Common\Exceptions\ServiceException;
+require_once 'db.php'; // DB-Verbindung + .env geladen
 
-use Dotenv\Dotenv;
-$dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+// Hole Blob-Base-URL aus Umgebungsvariablen
+$blobBaseUrl = $_ENV['BLOB_BASE_URL'] ?? '';
 
-$connectionString = $_ENV['AZURE_STORAGE_CONNECTION_STRING'];
-$containerName = $_ENV['AZURE_STORAGE_CONTAINER_NAME'];
+// SQL-Abfrage
+$sql = "SELECT [FileName] FROM [dbo].[ImageRegistry]";
+$stmt = $conn->query($sql);
 
-$blobClient = BlobRestProxy::createBlobService($connectionString);
+$imageUrls = [];
 
-try {
-    $blobList = $blobClient->listBlobs($containerName);
-    $blobs = $blobList->getBlobs();
-
-    $images = [];
-    foreach ($blobs as $blob) {
-        $blobName = $blob->getName();
-        $url = "https://cgml15199447121.blob.core.windows.net/$containerName/$blobName";
-        $images[] = $url;
-    }
-
-    header('Content-Type: application/json');
-    echo json_encode($images);
-
-} catch(ServiceException $e){
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $fileName = $row['FileName'];
+    $imageUrls[] = $blobBaseUrl . rawurlencode($fileName);
 }
+
+// JSON-Ausgabe
+echo json_encode($imageUrls, JSON_UNESCAPED_SLASHES);
+?>
