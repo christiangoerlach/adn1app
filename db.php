@@ -1,43 +1,19 @@
-23:51
+0727
 
 <?php
+// Autoload für Composer (falls du vlucas/phpdotenv verwendest)
+require 'vendor/autoload.php';
 
 use Dotenv\Dotenv;
+
+// Lade die .env-Datei
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-$serverName = $_ENV['DB_SERVER'];
-$connectionOptions = [
-    "Database" => $_ENV['DB_NAME'],
-    "Uid" => $_ENV['DB_USER'],
-    "PWD" => $_ENV['DB_PASS'],
-    "Encrypt" => 1,
-    "TrustServerCertificate" => 0
-];
-printf($serverName);
-
-// Verbindung aufbauen
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-echo "Verbindung erfolgreich!<br>";
-
-// Beispielabfrage
-$sql = "SELECT * FROM [dbo].[ImageRegistry]";
-$stmt = sqlsrv_query($conn, $sql);
-
-if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
-}
-
-// Daten ausgeben
-while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    echo htmlspecialchars($row['spaltenname']) . "<br>";
-}
-
-sqlsrv_free_stmt($stmt);
-sqlsrv_close($conn);
+// Variablen ausgeben
+echo "DB_SERVER: " . $_ENV['DB_SERVER'] . PHP_EOL;
+echo "DB_NAME: " . $_ENV['DB_NAME'] . PHP_EOL;
+echo "DB_USER: " . $_ENV['DB_USER'] . PHP_EOL;
+echo "DB_PASS: " . $_ENV['DB_PASS'] . PHP_EOL;
 ?>
+
