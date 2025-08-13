@@ -1,6 +1,3 @@
-
-0801
-
 <?php
 header('Content-Type: application/json');
 
