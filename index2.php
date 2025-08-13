@@ -1,5 +1,5 @@
 
-0750
+0753
 <?php
 header('Content-Type: application/json');
 
@@ -14,7 +14,7 @@ $stmt = $conn->query($sql);
 $imageUrls = [];
 
 // Azure Blob Storage Basis-URL (bitte anpassen)
-$blobBaseUrl = "https://<dein-storage-account>.blob.core.windows.net/<dein-container>/";
+$blobBaseUrl = "https://cgml1519944712.blob.core.windows.net/adntest/";
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $fileName = $row['FileName'];
