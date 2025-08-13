@@ -1,13 +1,17 @@
-1312
+1333
 
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // DB-Verbindung laden
-require_once 'db.php'; // DB-Verbindung + .env geladen
+require_once 'db.php'; // stellt $conn bereit
 
 // Projekte abrufen
 $options = [];
 try {
-    $stmt = $pdo->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY Projektname ASC");
+    $stmt = $conn->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY Projektname ASC");
     $options = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "DB-Fehler: " . $e->getMessage();
