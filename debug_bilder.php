@@ -57,4 +57,17 @@ foreach ($urls as $url) {
         echo "✅ OK: $url\n";
     } else {
         echo "❌ Fehler: $url (";
-        echo $hea
+        echo $headers[0] ?? 'Keine Antwort';
+        echo ")\n";
+    }
+}
+
+echo "\n=== Debug-Ende ===\n</pre>";
+
+// 5. Falls alles ok, zusätzlich JSON ausgeben (für fetch())
+if (isset($_GET['json']) && $_GET['json'] == 1) {
+    header('Content-Type: application/json');
+    echo json_encode($urls, JSON_UNESCAPED_SLASHES);
+}
+
+?>
