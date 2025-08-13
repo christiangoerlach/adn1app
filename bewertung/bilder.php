@@ -1,10 +1,11 @@
 <?php
+session_start(); // Session starten
 header('Content-Type: application/json');
 
 require_once '../db.php'; // DB-Verbindung + .env geladen
 
-// Hole Blob-Base-URL aus Umgebungsvariablen
-$blobBaseUrl = $_ENV['BLOB_BASE_URL'] ?? '';
+// Hole Blob-Base-URL aus Umgebungsvariablen und Session
+$blobBaseUrl = ($_ENV['BLOB_BASE_URL'] ?? '') . ($_SESSION['AZURE_STORAGE_CONTAINER_NAME'] ?? '') . '/';
 
 // SQL-Abfrage
 $sql = "SELECT [FileName] FROM [dbo].[ImageRegistry]";

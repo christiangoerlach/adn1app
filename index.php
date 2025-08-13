@@ -1,6 +1,6 @@
-1333
-
 <?php
+session_start(); // Session starten
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -37,10 +37,27 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['auswahl'])) {
     $projektId = $_POST['auswahl'];
 
-    // Umgebungvariable setzen (nur für die Laufzeit)
-    putenv("PROJEKT_ID={$projektId}");
-    $meineVariable = getenv("PROJEKT_ID");
+    // Projektinformationen abrufen
+    try {
+        $stmt = $conn->prepare("SELECT BilderContainer FROM [dbo].[projects] WHERE Id = ?");
+        $stmt->execute([$projektId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    echo "<p>Umgebungsvariable PROJEKT_ID wurde auf <strong>" . htmlspecialchars($meineVariable) . "</strong> gesetzt.</p>";
+        if ($row && isset($row['BilderContainer'])) {
+            $containerName = $row['BilderContainer'];
+
+            // Session-Variablen setzen
+            $_SESSION['PROJEKT_ID'] = $projektId;
+            $_SESSION['AZURE_STORAGE_CONTAINER_NAME'] = $containerName;
+
+            // Ausgabe
+            echo "<p>Session-Variable <strong>PROJEKT_ID</strong> wurde auf <strong>" . htmlspecialchars($_SESSION['PROJEKT_ID']) . "</strong> gesetzt.</p>";
+            echo "<p>Session-Variable <strong>AZURE_STORAGE_CONTAINER_NAME</strong> wurde auf <strong>" . htmlspecialchars($_SESSION['AZURE_STORAGE_CONTAINER_NAME']) . "</strong> gesetzt.</p>";
+        } else {
+            echo "<p>Fehler: Kein BilderContainer für das ausgewählte Projekt gefunden.</p>";
+        }
+    } catch (PDOException $e) {
+        echo "DB-Fehler beim Abrufen des BilderContainers: " . $e->getMessage();
+    }
 }
 ?>

@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<h1>Bildergalerie 1244</h1>
+<h1>Bildergalerie 1437</h1>
 
 <img id="mainImage" src="" alt="Bild" />
 <div class="nav-buttons">
