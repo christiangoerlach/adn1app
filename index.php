@@ -12,7 +12,7 @@
 </head>
 <body>
 
-<h1>Bildergalerie mit AJAX und DB</h1>
+<h1>Bildergalerie 0842</h1>
 
 <img id="mainImage" src="" alt="Bild" />
 <div class="nav-buttons">
