@@ -5,7 +5,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// DB-Verbindung laden
 require_once 'db.php';
 
 // Benutzername und E-Mail aus Azure Authentication
@@ -13,12 +12,10 @@ $username = 'Gast';
 $useremail = '';
 
 if (!empty($_SERVER["HTTP_X_MS_CLIENT_PRINCIPAL_NAME"])) {
-    // Einfacher Weg: direkt wie im Beispielscript
     $useremail = $_SERVER["HTTP_X_MS_CLIENT_PRINCIPAL_NAME"];
     $username = explode('@', $useremail)[0];
     $username = ucwords(str_replace('.', ' ', $username));
 } elseif (isset($_SERVER['HTTP_X_MS_CLIENT_PRINCIPAL'])) {
-    // Optional: Auswertung des Base64-JSON-Headers
     $principal = json_decode(base64_decode($_SERVER['HTTP_X_MS_CLIENT_PRINCIPAL']), true);
     if (isset($principal['userDetails'])) {
         $useremail = $principal['userDetails'];
@@ -41,7 +38,6 @@ try {
     echo "DB-Fehler: " . $e->getMessage();
 }
 
-// Projektwechsel verarbeiten
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['auswahl'])) {
     $projektId = $_POST['auswahl'];
     try {
@@ -56,17 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['auswahl'])) {
     } catch (PDOException $e) {
         echo "DB-Fehler beim Abrufen des BilderContainers: " . $e->getMessage();
     }
-}
-
-// Aktuelles Projekt anzeigen
-$aktuellesProjekt = '';
-if (isset($_SESSION['PROJEKT_ID'])) {
-    foreach ($options as $opt) {
-        if ($opt['Id'] == $_SESSION['PROJEKT_ID']) {
-            $aktuellesProjekt = $opt['Projektname'];
-            break;
-        }
-    }
+    exit; // Wichtig! Bei POST nur Session setzen, JS lädt neuen Content
 }
 ?>
 <!DOCTYPE html>
@@ -77,81 +63,18 @@ if (isset($_SESSION['PROJEKT_ID'])) {
     <link rel="icon" href="https://adn-consulting.de/sites/default/files/favicon-96x96.png" type="image/png" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f4f4f4;
-        }
-        .top-bar {
-            background-color: #003366;
-            height: 8px;
-            width: 100%;
-        }
-        .header {
-            background-color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 30px;
-            border-bottom: 1px solid #ccc;
-            position: relative;
-        }
-        .header-left img {
-            height: 50px;
-        }
-        .header-title {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            font-weight: 600;
-            color: #000;
-            font-family: 'Open Sans', sans-serif;
-        }
-        .header-right {
-            font-size: 14px;
-            color: #333;
-            text-align: right;
-        }
-        .header-right span {
-            display: block;
-        }
-        .content {
-            padding: 30px;
-        }
-        .project-select {
-            margin-bottom: 20px;
-        }
-        .project-select select {
-            font-size: 14px;
-            padding: 6px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-            color: #333;
-            font-family: 'Open Sans', sans-serif;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-        .project-select select:hover,
-        .project-select select:focus {
-            border-color: #0078D4;
-            box-shadow: 0 0 5px rgba(0, 120, 212, 0.3);
-            outline: none;
-        }
-        a.button-link {
-            display: inline-block;
-            background-color: #0078D4;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: 600;
-            font-family: 'Open Sans', sans-serif;
-            transition: background-color 0.3s ease;
-        }
-        a.button-link:hover {
-            background-color: #005a9e;
-        }
+        body { margin: 0; font-family: 'Open Sans', sans-serif; background-color: #f4f4f4; }
+        .top-bar { background-color: #003366; height: 8px; width: 100%; }
+        .header { background-color: white; display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; border-bottom: 1px solid #ccc; position: relative; }
+        .header-left img { height: 50px; }
+        .header-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 24px; font-weight: 600; color: #000; }
+        .header-right { font-size: 14px; color: #333; text-align: right; }
+        .header-right span { display: block; }
+        .content { padding: 30px; }
+        .project-select { margin-bottom: 20px; }
+        .project-select select { font-size: 14px; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; background-color: #f9f9f9; }
+        a.button-link { display: inline-block; background-color: #0078D4; color: white; padding: 10px 15px; border-radius: 4px; font-weight: 600; text-decoration: none; }
+        a.button-link:hover { background-color: #005a9e; }
     </style>
 </head>
 <body>
@@ -173,27 +96,40 @@ if (isset($_SESSION['PROJEKT_ID'])) {
 
 <div class="content">
     <div class="project-select">
-        <form method="post" action="">
-            <select name="auswahl" onchange="this.form.submit()">
-                <option value="">-- Projekt wählen --</option>
-                <?php foreach ($options as $opt): ?>
-                    <option value="<?= htmlspecialchars($opt['Id']) ?>"
-                        <?= (isset($_SESSION['PROJEKT_ID']) && $_SESSION['PROJEKT_ID'] == $opt['Id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($opt['Projektname']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
+        <select name="auswahl" id="projekt-auswahl">
+            <option value="">-- Projekt wählen --</option>
+            <?php foreach ($options as $opt): ?>
+                <option value="<?= htmlspecialchars($opt['Id']) ?>" <?= (isset($_SESSION['PROJEKT_ID']) && $_SESSION['PROJEKT_ID'] == $opt['Id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($opt['Projektname']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
     </div>
 
-    <?php if ($aktuellesProjekt): ?>
-        <p>Aktuelles Projekt: <strong><?= htmlspecialchars($aktuellesProjekt) ?></strong></p>
-    <?php else: ?>
-        <p>Kein Projekt ausgewählt.</p>
-    <?php endif; ?>
-
-    <a href="bewertung/bewertung.php" class="button-link">Zur Bewertung</a>
+    <div id="projekt-content">
+        <?php include 'index_projekt.php'; ?>
+    </div>
 </div>
+
+<script>
+document.getElementById('projekt-auswahl').addEventListener('change', function() {
+    let projektId = this.value;
+    let formData = new FormData();
+    formData.append('auswahl', projektId);
+
+    fetch('', {
+        method: 'POST',
+        body: formData
+    }).then(() => {
+        // Nach Setzen der Session den Projektbereich neu laden
+        fetch('index_projekt.php')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('projekt-content').innerHTML = html;
+            });
+    });
+});
+</script>
 
 </body>
 </html>
