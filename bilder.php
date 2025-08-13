@@ -7,7 +7,7 @@ $sql = "SELECT [FileName] FROM [dbo].[ImageRegistry]";
 $stmt = $conn->query($sql);
 
 $imageUrls = [];
-$blobBaseUrl = "https://cgml1519944712.blob.core.windows.net/adntest/"; // anpassen falls nötig
+$blobBaseUrl = "https://cgml15199447121.blob.core.windows.net/adntest/"; // anpassen falls nötig
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $fileName = $row['FileName'];
