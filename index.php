@@ -82,19 +82,6 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 loadImages();
 </script>
 
-<?php
-require_once 'db.php'; // Verbindung wird hergestellt
-
-$sql = "SELECT * FROM [dbo].[ImageRegistry]";
-$stmt = $conn->query($sql);
-
-echo "<h2>ImageRegistry-Daten:</h2>";
-echo "<ul>";
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "<li>" . htmlspecialchars(json_encode($row)) . "</li>";
-}
-echo "</ul>";
-?>
 
 
 </body>
