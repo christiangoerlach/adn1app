@@ -1,23 +1,109 @@
----
-description: Projektstruktur
-globs:
-alwaysApply: false
----
 
+# Projektname: ADN1APP
+
+## Überblick
+- **Zweck**: Webanwendung zur Bewertung von Straßenbildern
+- **Stack**: PHP 8.3.24, Microsoft SQL Azure (RTM) - 12.0.2000.8
+- **Architektur**: MVC-Pattern mit PHP
+- **Composer**: Autoloading über vendor/autoload.php
+
+## Projektstruktur
+```
 adn1app/
-├── public/                    # Öffentlich zugängliche Dateien
-│   ├── index.php             # Haupteinstiegspunkt
-│   ├── .htaccess             # URL-Rewriting
-│   ├── css/                  # Stylesheets
-│   ├── js/                   # JavaScript
-│   └── images/               # Bilder
-├── php/                      # Hauptanwendungscode (nicht öffentlich)
-│   ├── controller/           # Controller
-│   ├── model/                # Modelle
-│   ├── view/                 # Templates
-│   └── lib/                  # Hilfsfunktionen
-├── config/                   # Konfiguration
-├── vendor/                   # Composer-Abhängigkeiten
-└── database/                 # Datenbankdateien
+├── config/          # Konfigurationsdateien
+├── php/            # MVC-Struktur
+│   ├── controller/ # Controller-Klassen
+│   ├── model/      # Datenmodelle
+│   └── view/       # View-Templates
+├── public/         # Öffentlich zugängliche Dateien
+├── bewertung/      # Bewertungsmodul
+└── vendor/         # Composer-Abhängigkeiten
+```
 
+## Umgebungsvariablen (.env)
 
+### Datenbank
+- `DB_SERVER`: SQL Server Hostname
+- `DB_NAME`: Datenbankname
+- `DB_USER`: Datenbankbenutzer
+- `DB_PASS`: Datenbankpasswort
+
+### Azure Storage
+- `AZURE_STORAGE_CONNECTION_STRING`: Vollständiger Connection String
+- `BLOB_BASE_URL`: Base URL für Blob Storage
+- `AZURE_STORAGE_ACCOUNT`: Storage Account Name
+- `AZURE_STORAGE_KEY`: Storage Account Key
+
+### Azure Maps
+- `AZURE_MAPS_KEY`: API-Schlüssel für Azure Maps
+
+## Datenbankschema
+
+### Tabelle: projects
+- `Id` (PK, int): Eindeutige Projekt-ID
+- `Projektname` (varchar): Name des Projekts
+- `BilderContainer` (varchar): Blob Container Name im Azure Storage
+
+### Tabelle: bilder
+- `Id` (PK, int): Eindeutige Bild-ID
+- `projects-id` (FK, int): Referenz auf projects.Id
+- `FileName` (text): Dateiname des Bildes
+- `CreatedAt` (timestamp): Erstellungsdatum
+
+### Tabelle: bewertung
+- `Id` (PK, int): Eindeutige Bewertungs-ID
+- `bilder-id` (FK, int): Referenz auf bilder.Id
+- `strasse` (int): Bewertungsklasse
+- `CreatedAt` (timestamp): Erstellungs- / Änderungsdatum
+
+## Datenbankbeziehungen
+- `bilder` belongsTo `projects` via `projects-id`
+- `projects` hasMany `bilder` via `projects-id`
+
+## Session-Management
+- `PROJEKT_ID`: Aktuell ausgewähltes Projekt
+- `AZURE_STORAGE_CONTAINER_NAME`: Aktueller Blob Container (aus projects.BilderContainer)
+
+## Unterstützte Bildformate
+- AVIF (.avif)
+- JPEG (.jpg, .jpeg)
+- PNG (.png)
+- Weitere Formate über Azure Blob Storage
+
+## Sicherheitsrichtlinien
+- Alle Datenbankzugriffe über PDO mit Prepared Statements
+- Keine direkten SQL-Injections
+- Session-basierte Authentifizierung
+- Input-Validierung für alle Benutzereingaben
+
+## Fehlerbehandlung
+- Alle Datenbankfehler werden geloggt
+- Benutzerfreundliche Fehlermeldungen
+- HTTP-Statuscodes entsprechend der Fehlerart
+- Try-Catch-Blöcke für alle externen API-Aufrufe
+
+## Coding Standards
+- PSR-4 Autoloading-Standard
+- PSR-12 Coding Style
+- Deutsche Kommentare für bessere Verständlichkeit
+- Konsistente Namenskonventionen (camelCase für Variablen, PascalCase für Klassen)
+
+## Azure Storage Best Practices
+- Container-Namen werden aus der Datenbank gelesen
+- Blob-URLs werden dynamisch generiert
+- Fehlerbehandlung für nicht verfügbare Blobs
+- Optimierte URL-Generierung ohne doppelte Schrägstriche
+
+## Composer-Abhängigkeiten
+- **Microsoft Azure Storage Blob**: Für Azure Blob Storage Zugriff
+- **Microsoft Azure Storage Common**: Gemeinsame Azure Storage Funktionen
+- **Guzzle HTTP**: HTTP-Client für API-Aufrufe
+- **Dotenv**: Umgebungsvariablen-Verwaltung
+- **OpenID Connect**: Authentifizierung (falls benötigt)
+
+## Entwicklungsrichtlinien
+- Alle neuen Funktionen müssen PSR-Standards folgen
+- Deutsche Bezeichner für Benutzeroberfläche
+- Englische Bezeichner für technische Implementierung
+- Regelmäßige Code-Reviews und Tests
+- Dokumentation aller API-Endpunkte

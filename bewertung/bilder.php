@@ -7,17 +7,11 @@ require_once __DIR__ . '/../db.php'; // DB-Verbindung + .env geladen
 // Hole Blob-Base-URL aus Umgebungsvariablen und Session
 $blobBaseUrl = ($_ENV['BLOB_BASE_URL'] ?? '') . ($_SESSION['AZURE_STORAGE_CONTAINER_NAME'] ?? '') . '/';
 
-// Projekt-ID aus Session holen
-$projektId = $_SESSION['PROJEKT_ID'] ?? null;
-
-if ($projektId === null) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Keine PROJEKT_ID in der Session gefunden']);
-    exit;
-}
+// Projekt-ID aus Session holen oder Standard verwenden
+$projektId = $_SESSION['PROJEKT_ID'] ?? 1; // Standard-Projekt-ID 1 verwenden
 
 // SQL-Abfrage mit WHERE und Platzhalter
-$sql = "SELECT [FileName] 
+$sql = "SELECT [Id], [FileName] 
         FROM [dbo].[bilder]
         WHERE [projects-id] = :projekt_id";
 
@@ -29,7 +23,10 @@ $imageUrls = [];
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $fileName = $row['FileName'];
-    $imageUrls[] = $blobBaseUrl . rawurlencode($fileName);
+    $imageUrls[] = [
+        'id' => $row['Id'],
+        'url' => $blobBaseUrl . rawurlencode($fileName)
+    ];
 }
 
 // JSON-Ausgabe
