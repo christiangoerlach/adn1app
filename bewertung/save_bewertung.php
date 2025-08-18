@@ -11,8 +11,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Hole POST-Daten
-$input = json_decode(file_get_contents('php://input'), true);
+// Hole POST-Daten (robust: JSON-Body oder Form-POST)
+$rawBody = file_get_contents('php://input');
+$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+$input = [];
+
+// Erst JSON versuchen (unabhängig vom Content-Type, falls ein Proxy Header verändert)
+if ($rawBody !== false && strlen($rawBody) > 0) {
+    $decoded = json_decode($rawBody, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        $input = $decoded;
+    }
+}
+
+// Fallback: x-www-form-urlencoded oder multipart/form-data
+if (empty($input) && !empty($_POST)) {
+    $input = $_POST;
+}
+
 $bildId = $input['bildId'] ?? null;
 $strasse = $input['strasse'] ?? null;
 
@@ -38,9 +54,9 @@ try {
     $checkStmt->execute();
     
     if ($checkStmt->fetch()) {
-        // Update existierende Bewertung
+        // Update existierende Bewertung (CreatedAt/rowversion wird automatisch aktualisiert, nicht manuell setzen)
         $sql = "UPDATE [dbo].[bewertung] 
-                SET [strasse] = :strasse, [CreatedAt] = GETDATE() 
+                SET [strasse] = :strasse
                 WHERE [bilder-id] = :bild_id";
         $stmt = $conn->prepare($sql);
         $stmt->bindValue(':strasse', (int)$strasse, PDO::PARAM_INT);
@@ -49,9 +65,9 @@ try {
         
         echo json_encode(['success' => true, 'action' => 'updated']);
     } else {
-        // Erstelle neue Bewertung
-        $sql = "INSERT INTO [dbo].[bewertung] ([bilder-id], [strasse], [CreatedAt]) 
-                VALUES (:bild_id, :strasse, GETDATE())";
+        // Erstelle neue Bewertung (CreatedAt/rowversion wird automatisch gesetzt)
+        $sql = "INSERT INTO [dbo].[bewertung] ([bilder-id], [strasse]) 
+                VALUES (:bild_id, :strasse)";
         $stmt = $conn->prepare($sql);
         $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
         $stmt->bindValue(':strasse', (int)$strasse, PDO::PARAM_INT);

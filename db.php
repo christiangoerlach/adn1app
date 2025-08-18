@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -20,6 +19,3 @@ try {
     die("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
 }
 ?>
-
-
-

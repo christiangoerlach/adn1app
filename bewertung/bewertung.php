@@ -232,16 +232,18 @@ function saveBewertung(strasse) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data && data.success) {
             updateBewertungButtons(strasse);
             showStatus('Bewertung erfolgreich gespeichert!', 'success');
         } else {
-            showStatus('Fehler beim Speichern der Bewertung', 'error');
+            const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Bewertung';
+            console.error('Speicher-Response:', data);
+            showStatus(msg, 'error');
         }
     })
     .catch(error => {
         console.error('Fehler beim Speichern der Bewertung:', error);
-        showStatus('Fehler beim Speichern der Bewertung', 'error');
+        showStatus(error && error.message ? error.message : 'Fehler beim Speichern der Bewertung', 'error');
     });
 }
 
