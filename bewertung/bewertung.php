@@ -109,6 +109,20 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        
+        .map-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+
+        
+        #azureMap {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -140,6 +154,11 @@
         </div>
         
         <div id="bewertung-status"></div>
+        
+        <div class="map-section">
+            <h3>Kartenansicht</h3>
+            <div id="azureMap" style="width: 100%; height: 300px;"></div>
+        </div>
     </div>
 </div>
 
@@ -305,6 +324,100 @@ document.addEventListener('DOMContentLoaded', function() {
             saveBewertung(strasse);
         });
     });
+});
+
+// Azure Maps Funktionalität
+let map = null;
+let currentStyle = 'road';
+let azureMapsKey = '';
+
+// Azure Maps initialisieren
+async function initAzureMap() {
+    try {
+        // Azure Maps Key laden
+        const response = await fetch('get_map_key.php');
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Fehler beim Laden des Azure Maps Keys:', data.error);
+            return;
+        }
+        
+        azureMapsKey = data.key;
+        
+                            // Azure Maps laden (neueste Version)
+        const script = document.createElement('script');
+        script.src = `https://atlas.microsoft.com/sdk/javascript/mapcontrol/3/atlas.min.js`;
+        script.onload = () => {
+            // Azure Maps CSS laden
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://atlas.microsoft.com/sdk/javascript/mapcontrol/3/atlas.min.css';
+            document.head.appendChild(link);
+            
+                            // Karte initialisieren
+                map = new atlas.Map('azureMap', {
+                    center: [8.700000, 50.516000], // [longitude, latitude]
+                    zoom: 14, // Detaillierter Zoom für Straßenansicht
+                    style: 'road',
+                    authOptions: {
+                        authType: 'subscriptionKey',
+                        subscriptionKey: azureMapsKey
+                    }
+                });
+                
+                // Style Picker Control hinzufügen - nur Straße und Satellit mit Straßennamen
+                map.controls.add(new atlas.control.StyleControl({
+                    mapStyles: ['road', 'satellite_road_labels']
+                }), {
+                    position: 'top-right'
+                });
+            
+            // Karte ist geladen
+            map.events.add('ready', () => {
+                console.log('Azure Map geladen');
+                console.log('Map-Objekt:', map);
+                console.log('Verfügbare Methoden:', Object.getOwnPropertyNames(Object.getPrototypeOf(map)));
+                console.log('Verfügbare Eigenschaften:', Object.keys(map));
+                
+                // Markierung in die Mitte des Kartenausschnitts setzen
+                const marker = new atlas.HtmlMarker({
+                    htmlContent: '<div style="background-color: #007bff; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                    position: [8.700000, 50.516000]
+                });
+                
+                map.markers.add(marker);
+            });
+        };
+        document.head.appendChild(script);
+        
+    } catch (error) {
+        console.error('Fehler beim Initialisieren der Azure Map:', error);
+    }
+}
+
+// Kartenstil ändern - nicht mehr benötigt, da wir den eingebauten Style Picker verwenden
+function changeMapStyle(style) {
+    // Diese Funktion wird nicht mehr benötigt
+    console.log('Style Picker wird über Azure Maps Control gesteuert');
+}
+
+// Zoom-Funktionen - nicht mehr benötigt, da Zoom direkt in der Karte möglich ist
+
+// Event-Listener für Kartensteuerung
+document.addEventListener('DOMContentLoaded', function() {
+    // Bewertungsbuttons
+    document.querySelectorAll('.bewertung-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const strasse = parseInt(this.getAttribute('data-value'));
+            saveBewertung(strasse);
+        });
+    });
+    
+    // Kartensteuerung - Zoom wird direkt über die Karte gesteuert
+    
+    // Azure Map initialisieren
+    initAzureMap();
 });
 
 // Load images on page load
