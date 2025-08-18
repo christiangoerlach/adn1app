@@ -1,0 +1,102 @@
+/* Haupt-CSS für ADN StraßenWeb */
+
+body { 
+    margin: 0; 
+    font-family: 'Open Sans', sans-serif; 
+    background-color: #f4f4f4; 
+}
+
+.top-bar { 
+    background-color: #003366; 
+    height: 8px; 
+    width: 100%; 
+}
+
+.header { 
+    background-color: white; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 15px 30px; 
+    border-bottom: 1px solid #ccc; 
+    position: relative; 
+}
+
+.header-left img { 
+    height: 50px; 
+}
+
+.header-title { 
+    position: absolute; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    font-size: 24px; 
+    font-weight: 600; 
+    color: #000; 
+}
+
+.header-right { 
+    font-size: 14px; 
+    color: #333; 
+    text-align: right; 
+}
+
+.header-right span { 
+    display: block; 
+}
+
+.content { 
+    padding: 30px; 
+}
+
+.project-select { 
+    margin-bottom: 20px; 
+}
+
+.project-select select { 
+    font-size: 14px; 
+    padding: 6px 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    background-color: #f9f9f9; 
+    min-width: 200px;
+}
+
+.button-link { 
+    display: inline-block; 
+    background-color: #0078D4; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 4px; 
+    font-weight: 600; 
+    text-decoration: none; 
+    transition: background-color 0.2s;
+}
+
+.button-link:hover { 
+    background-color: #005a9e; 
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .header-title {
+        position: static;
+        transform: none;
+        margin: 10px 0;
+    }
+    
+    .content {
+        padding: 15px;
+    }
+    
+    .project-select select {
+        width: 100%;
+        min-width: auto;
+    }
+}
+

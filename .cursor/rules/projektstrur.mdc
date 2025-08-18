@@ -1,0 +1,23 @@
+---
+description: Projektstruktur
+globs:
+alwaysApply: false
+---
+
+adn1app/
+├── public/                    # Öffentlich zugängliche Dateien
+│   ├── index.php             # Haupteinstiegspunkt
+│   ├── .htaccess             # URL-Rewriting
+│   ├── css/                  # Stylesheets
+│   ├── js/                   # JavaScript
+│   └── images/               # Bilder
+├── php/                      # Hauptanwendungscode (nicht öffentlich)
+│   ├── controller/           # Controller
+│   ├── model/                # Modelle
+│   ├── view/                 # Templates
+│   └── lib/                  # Hilfsfunktionen
+├── config/                   # Konfiguration
+├── vendor/                   # Composer-Abhängigkeiten
+└── database/                 # Datenbankdateien
+
+
