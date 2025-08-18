@@ -34,7 +34,7 @@
 </head>
 <body>
 
-<h1>Bildergalerie 1440</h1>
+<h1>Bildergalerie 1441</h1>
 
 <img id="mainImage" src="" alt="Bild" />
 <div class="nav-buttons">
