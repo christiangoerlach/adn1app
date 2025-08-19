@@ -41,9 +41,7 @@
             border-radius: 5px;
         }
         
-        .nav-buttons { 
-            margin: 20px; 
-        }
+
         
         button { 
             font-size: 1.2rem; 
@@ -116,13 +114,6 @@
             border: 1px solid #f5c6cb;
         }
         
-        .map-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-        
         #azureMap {
             border: 2px solid #ddd;
             border-radius: 5px;
@@ -145,6 +136,29 @@
             min-height: 40px;
         }
         
+        .header-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .menu-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #007bff;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .menu-icon:hover {
+            background: #e3f2fd;
+            color: #0056b3;
+            transform: scale(1.1);
+        }
+        
         .header-left h1 {
             margin: 0;
             color: #333;
@@ -152,17 +166,36 @@
             font-weight: 600;
         }
         
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .header-center .nav-buttons {
+            margin: 0;
+        }
+        
+        .header-center button {
+            font-size: 1rem;
+            padding: 8px 16px;
+            margin: 0 5px;
+        }
+        
+        .header-center #counter {
+            margin: 0 10px;
+            font-weight: 600;
+            color: #666;
+        }
+        
         .header-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
             font-weight: 600;
             color: #007bff;
             font-size: 0.9rem;
-        }
-        
-        .log-section {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
         }
         
         .log-table-container {
@@ -195,6 +228,54 @@
         .log-table tbody tr:hover {
             background: #f8f9fa;
         }
+        
+        /* Ausklappbare Bereiche */
+        .collapsible-section {
+            margin-top: 20px;
+        }
+        
+        .collapsible-header {
+            cursor: pointer;
+            padding: 15px 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            user-select: none;
+        }
+        
+        .collapsible-header:hover {
+            background: #dee2e6;
+        }
+        
+        .toggle-icon {
+            margin-right: 10px;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            color: #007bff;
+        }
+        
+        .collapsible-content {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            border-top: 1px solid #dee2e6;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .collapsible-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top: none;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 1000px;
+        }
     </style>
 </head>
 <body>
@@ -203,7 +284,17 @@
 
 <div class="header">
     <div class="header-left">
-        <h1 id="current-image-name">Lade Bild...</h1>
+        <div class="menu-icon" id="main-menu-btn" title="Hauptmenü">☰</div>
+        <h1>
+            <span id="project-name">Lade Projekt...</span>: <span id="current-image-name">Lade Bild...</span>
+        </h1>
+    </div>
+    <div class="header-center">
+        <div class="nav-buttons">
+            <button id="prevBtn" disabled>← Zurück</button>
+            <span id="counter">0 / 0</span>
+            <button id="nextBtn" disabled>Vor →</button>
+        </div>
     </div>
     <div class="header-right">
         <span id="current-user">Lade Benutzer...</span>
@@ -213,11 +304,6 @@
 <div class="container">
     <div class="image-section">
         <img id="mainImage" src="" alt="Bild" />
-        <div class="nav-buttons">
-            <button id="prevBtn" disabled>← Zurück</button>
-            <span id="counter">0 / 0</span>
-            <button id="nextBtn" disabled>Vor →</button>
-        </div>
     </div>
     
     <div class="bewertung-section">
@@ -236,29 +322,39 @@
         
         <div id="bewertung-status"></div>
         
-        <div class="map-section">
-            <h3>Kartenansicht</h3>
-            <div id="azureMap" style="width: 100%; height: 300px;"></div>
+        <div class="collapsible-section map-section">
+            <h3 class="collapsible-header" data-target="map-content">
+                <span class="toggle-icon">▶</span>
+                Kartenansicht
+            </h3>
+            <div id="map-content" class="collapsible-content collapsed">
+                <div id="azureMap" style="width: 100%; height: 300px;"></div>
+            </div>
         </div>
         
-        <div class="log-section">
-            <h3>Log</h3>
-            <div class="log-table-container">
-                <table id="log-table" class="log-table">
-                    <thead>
-                        <tr>
-                            <th>Datum/Zeit</th>
-                            <th>Nutzer</th>
-                            <th>Feld</th>
-                            <th>Wert</th>
-                        </tr>
-                    </thead>
-                    <tbody id="log-table-body">
-                        <tr>
-                            <td colspan="4">Lade Log-Daten...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="collapsible-section log-section">
+            <h3 class="collapsible-header" data-target="log-content">
+                <span class="toggle-icon">▶</span>
+                Log
+            </h3>
+            <div id="log-content" class="collapsible-content collapsed">
+                <div class="log-table-container">
+                    <table id="log-table" class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Datum/Zeit</th>
+                                <th>Nutzer</th>
+                                <th>Feld</th>
+                                <th>Wert</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body">
+                            <tr>
+                                <td colspan="4">Lade Log-Daten...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -499,6 +595,11 @@ async function initAzureMap() {
 
 // Event-Listener für Kartensteuerung
 document.addEventListener('DOMContentLoaded', function() {
+    // Hauptmenü-Button
+    document.getElementById('main-menu-btn').addEventListener('click', function() {
+        window.location.href = '../index.php';
+    });
+    
     // Bewertungsbuttons
     document.querySelectorAll('.bewertung-btn').forEach(btn => {
         btn.addEventListener('click', function() {
@@ -507,10 +608,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Ausklappbare Bereiche
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+            const toggleIcon = this.querySelector('.toggle-icon');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                toggleIcon.textContent = '▼';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                toggleIcon.textContent = '▶';
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+    });
+    
     // Kartensteuerung - Zoom wird direkt über die Karte gesteuert
     
     // Azure Map initialisieren
     initAzureMap();
+    
+    // Projektnamen laden
+    loadProjectName();
     
     // Benutzerinformationen laden
     loadUserInfo();
@@ -569,6 +694,23 @@ function formatDateTime(dateTimeString) {
 
 // Load images on page load
 loadImages();
+
+// Projektnamen laden
+async function loadProjectName() {
+    try {
+        const response = await fetch('get_project_name.php');
+        const data = await response.json();
+        
+        if (data.projektname) {
+            document.getElementById('project-name').textContent = data.projektname;
+        } else {
+            document.getElementById('project-name').textContent = 'Unbekanntes Projekt';
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden des Projektnamens:', error);
+        document.getElementById('project-name').textContent = 'Unbekanntes Projekt';
+    }
+}
 
 // Benutzerinformationen laden
 async function loadUserInfo() {
