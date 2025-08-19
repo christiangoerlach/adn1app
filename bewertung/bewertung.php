@@ -178,7 +178,7 @@
         }
         
         .header-center button {
-            font-size: 1rem;
+            font-size: 1.2rem;
             padding: 8px 16px;
             margin: 0 5px;
         }
@@ -187,6 +187,7 @@
             margin: 0 10px;
             font-weight: 600;
             color: #666;
+            font-size: 1.2rem;
         }
         
         .header-right {
@@ -195,7 +196,7 @@
             justify-content: flex-end;
             font-weight: 600;
             color: #007bff;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
         }
         
         .log-table-container {
@@ -295,6 +296,7 @@
             <span id="counter">0 / 0</span>
             <button id="nextBtn" disabled>Vor →</button>
         </div>
+        <div id="filter-info" style="margin-left: 20px; font-size: 1.2rem; color: #666;"></div>
     </div>
     <div class="header-right">
         <span id="current-user">Lade Benutzer...</span>
@@ -307,8 +309,7 @@
     </div>
     
     <div class="bewertung-section">
-        <h3>Straßenbewertung</h3>
-        <p>Bitte bewerten Sie die Straßenqualität:</p>
+        <h3>Straßenzustandsklasse</h3>
         
         <div class="bewertung-buttons">
             <button class="bewertung-btn" data-value="1">1</button>
@@ -490,7 +491,21 @@ function showStatus(message, type) {
 }
 
 function loadImages() {
-    fetch('bilder.php')
+    // URL-Parameter für Filter holen
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter') || 'all';
+    const wert = urlParams.get('wert') || '';
+    
+    // Filter-Text anzeigen
+    updateFilterInfo(filter, wert);
+    
+    // Filter-Parameter an bilder.php weiterleiten
+    let fetchUrl = 'bilder.php?filter=' + encodeURIComponent(filter);
+    if (wert !== '') {
+        fetchUrl += '&wert=' + encodeURIComponent(wert);
+    }
+    
+    fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
             // Expect data.images to be an array of URLs
@@ -510,6 +525,24 @@ function loadImages() {
             images = [];
             updateImage();
         });
+}
+
+// Filter-Information anzeigen
+function updateFilterInfo(filter, wert) {
+    const filterInfo = document.getElementById('filter-info');
+    let filterText = 'Filter: ';
+    
+    if (filter === 'all') {
+        filterText += 'Alle Bilder';
+    } else if (filter === 'zustand') {
+        filterText += `Zustand ${wert}`;
+    } else if (filter === 'nicht_bewertet') {
+        filterText += 'Nicht bewertet';
+    } else {
+        filterText += 'Unbekannt';
+    }
+    
+    filterInfo.textContent = filterText;
 }
 
 document.getElementById('prevBtn').addEventListener('click', () => {
