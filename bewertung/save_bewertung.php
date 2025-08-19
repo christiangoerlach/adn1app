@@ -109,6 +109,24 @@ function createLogEntry($conn, $bildId, $feld, $wert, $aktion) {
         error_log("Session-Daten: " . print_r($_SESSION, true));
         error_log("Benutzer aus Session: $nutzer");
         
+        // Versuche Benutzer aus verschiedenen Quellen zu holen
+        if ($nutzer === 'unbekannt') {
+            if (!empty($_SERVER["HTTP_X_MS_CLIENT_PRINCIPAL_NAME"])) {
+                $useremail = $_SERVER["HTTP_X_MS_CLIENT_PRINCIPAL_NAME"];
+                $nutzer = explode('@', $useremail)[0];
+                $nutzer = ucwords(str_replace('.', ' ', $nutzer));
+            } elseif (isset($_SERVER['HTTP_X_MS_CLIENT_PRINCIPAL'])) {
+                $principal = json_decode(base64_decode($_SERVER['HTTP_X_MS_CLIENT_PRINCIPAL']), true);
+                if (isset($principal['name'])) {
+                    $nutzer = $principal['name'];
+                }
+            } elseif (isset($_SERVER['LOGON_USER'])) {
+                $nutzer = $_SERVER['LOGON_USER'];
+            }
+        }
+        
+        error_log("Finaler Benutzer: $nutzer");
+        
         // Log-Eintrag erstellen
         $sql = "INSERT INTO [dbo].[log_bewertung] ([bilder_id], [Feld], [Wert], [Nutzer]) 
                 VALUES (:bilder_id, :feld, :wert, :nutzer)";
