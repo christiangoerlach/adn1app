@@ -48,17 +48,30 @@ adn1app/
 - `Id` (PK, int): Eindeutige Bild-ID
 - `projects-id` (FK, int): Referenz auf projects.Id
 - `FileName` (text): Dateiname des Bildes
-- `CreatedAt` (timestamp): Erstellungsdatum
+- `CreatedAt` (rowversion): Erstellungsdatum
 
 ### Tabelle: bewertung
 - `Id` (PK, int): Eindeutige Bewertungs-ID
 - `bilder-id` (FK, int): Referenz auf bilder.Id
 - `strasse` (int): Bewertungsklasse
-- `CreatedAt` (timestamp): Erstellungs- / Änderungsdatum
+- `CreatedAt` (rowversion): Erstellungs- / Änderungsdatum
 
-## Datenbankbeziehungen
+### Tabelle: log_bewertung
+- `Id` (PK, int): Eindeutige Log-ID
+- `bilder-id` (text): Referenz auf bilder-Id
+- `Feld` (text): Referenz auf die Art der Bewertungsklasse3
+- `Wert` (int): Bewertungsklasse
+- `Nutzer` (text): User
+- `CreatedAt` (rowversion): Erstellungs- / Änderungsdatum
+
+
+
+### Datenbankbeziehungen
 - `bilder` belongsTo `projects` via `projects-id`
 - `projects` hasMany `bilder` via `projects-id`
+- `bewertung` belongsTo `bilder` via `bilder-id`
+- `log_bewertung` belongsTo `bewertung` via `bilder-id`
+- `bewertung` hasMany `log_bewertung` via `bilder-id`
 
 ## Session-Management
 - `PROJEKT_ID`: Aktuell ausgewähltes Projekt
