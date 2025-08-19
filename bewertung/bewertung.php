@@ -2,7 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8" />
-    <title>Azure Blob</title>
+    <title>ADN StraßenWeb - Bildergalerie</title>
+    <link rel="icon" href="https://adn-consulting.de/sites/default/files/favicon-96x96.png" type="image/png" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { 
             text-align: center; 
@@ -126,32 +128,82 @@
             border-radius: 5px;
         }
         
+        .top-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            width: 100%;
+        }
+        
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 10px 20px;
             background: #f8f9fa;
-            border-bottom: 2px solid #ddd;
+            border-bottom: 1px solid #ddd;
             margin-bottom: 20px;
+            min-height: 40px;
         }
         
         .header-left h1 {
             margin: 0;
             color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
         }
         
         .header-right {
-            font-weight: bold;
+            font-weight: 600;
             color: #007bff;
+            font-size: 0.9rem;
+        }
+        
+        .log-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .log-table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .log-table th,
+        .log-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .log-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .log-table tbody tr:hover {
+            background: #f8f9fa;
         }
     </style>
 </head>
 <body>
 
+<div class="top-bar"></div>
+
 <div class="header">
     <div class="header-left">
-        <h1>Bildergalerie 1441</h1>
+        <h1 id="current-image-name">Lade Bild...</h1>
     </div>
     <div class="header-right">
         <span id="current-user">Lade Benutzer...</span>
@@ -188,6 +240,27 @@
             <h3>Kartenansicht</h3>
             <div id="azureMap" style="width: 100%; height: 300px;"></div>
         </div>
+        
+        <div class="log-section">
+            <h3>Log</h3>
+            <div class="log-table-container">
+                <table id="log-table" class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Datum/Zeit</th>
+                            <th>Nutzer</th>
+                            <th>Feld</th>
+                            <th>Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                        <tr>
+                            <td colspan="4">Lade Log-Daten...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -220,6 +293,10 @@ function updateImage() {
     // Aktuelle Bild-ID setzen
     currentBildId = currentImage.id;
     
+    // Bildname im Header aktualisieren
+    const fileName = currentImage.url.split('/').pop().split('?')[0];
+    document.getElementById('current-image-name').textContent = decodeURIComponent(fileName);
+    
     // Bewertung für das aktuelle Bild laden
     loadBewertung(currentBildId);
 
@@ -248,6 +325,9 @@ function loadBewertung(bildId) {
         .catch(error => {
             console.error('Fehler beim Laden der Bewertung:', error);
         });
+    
+    // Log-Daten für das aktuelle Bild laden
+    loadLogData(bildId);
 }
 
 // Bewertungsbuttons aktualisieren
@@ -283,6 +363,11 @@ function saveBewertung(strasse) {
         if (data && data.success) {
             updateBewertungButtons(strasse);
             showStatus('Bewertung erfolgreich gespeichert!', 'success');
+            
+            // Log-Tabelle neu laden nach Bewertungsänderung
+            if (currentBildId) {
+                loadLogData(currentBildId);
+            }
         } else {
             const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Bewertung';
             console.error('Speicher-Response:', data);
@@ -430,6 +515,57 @@ document.addEventListener('DOMContentLoaded', function() {
     // Benutzerinformationen laden
     loadUserInfo();
 });
+
+// Log-Daten für ein Bild laden
+function loadLogData(bildId) {
+    fetch(`get_log_data.php?bildId=${bildId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateLogTable(data);
+        })
+        .catch(error => {
+            console.error('Fehler beim Laden der Log-Daten:', error);
+            updateLogTable([]);
+        });
+}
+
+// Log-Tabelle aktualisieren
+function updateLogTable(logData) {
+    const tbody = document.getElementById('log-table-body');
+    
+    if (!logData || logData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">Keine Log-Einträge vorhanden</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = logData.map(log => `
+        <tr>
+            <td>${formatDateTime(log.CreatedAt)}</td>
+            <td>${log.Nutzer}</td>
+            <td>${log.Feld}</td>
+            <td>${log.Wert}</td>
+        </tr>
+    `).join('');
+}
+
+// Datum/Zeit formatieren
+function formatDateTime(dateTimeString) {
+    if (!dateTimeString) return '-';
+    
+    try {
+        const date = new Date(dateTimeString);
+        return date.toLocaleString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    } catch (error) {
+        return dateTimeString;
+    }
+}
 
 // Load images on page load
 loadImages();
