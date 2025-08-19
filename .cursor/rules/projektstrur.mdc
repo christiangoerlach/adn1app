@@ -48,13 +48,13 @@ adn1app/
 - `Id` (PK, int): Eindeutige Bild-ID
 - `projects-id` (FK, int): Referenz auf projects.Id
 - `FileName` (text): Dateiname des Bildes
-- `CreatedAt` (rowversion): Erstellungsdatum
+- `CreatedAt` (rowversion): rowversion
 
 ### Tabelle: bewertung
 - `Id` (PK, int): Eindeutige Bewertungs-ID
 - `bilder-id` (FK, int): Referenz auf bilder.Id
 - `strasse` (int): Bewertungsklasse
-- `CreatedAt` (rowversion): Erstellungs- / Änderungsdatum
+- `CreatedAt` (rowversion): rowversion
 
 ### Tabelle: log_bewertung
 - `Id` (PK, int): Eindeutige Log-ID
@@ -62,8 +62,8 @@ adn1app/
 - `Feld` (text): Referenz auf die Art der Bewertungsklasse3
 - `Wert` (int): Bewertungsklasse
 - `Nutzer` (text): User
-- `CreatedAt` (rowversion): Erstellungs- / Änderungsdatum
-
+- `CreatedAt` (rowversion): rowversion
+- `Zeitstempel` (datetime2(7)): Erstellungs- / Änderungsdatum
 
 
 ### Datenbankbeziehungen

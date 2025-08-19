@@ -15,10 +15,10 @@ if ($bildId === null) {
 
 try {
     // Log-Daten für das angegebene Bild abrufen
-    $sql = "SELECT [CreatedAt], [Nutzer], [Feld], [Wert] 
+    $sql = "SELECT [Zeitstempel], [Nutzer], [Feld], [Wert] 
             FROM [dbo].[log_bewertung] 
             WHERE [bilder_id] = :bild_id 
-            ORDER BY [CreatedAt] DESC";
+            ORDER BY [Zeitstempel] DESC";
     
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);

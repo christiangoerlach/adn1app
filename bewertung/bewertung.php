@@ -540,7 +540,7 @@ function updateLogTable(logData) {
     
     tbody.innerHTML = logData.map(log => `
         <tr>
-            <td>${formatDateTime(log.CreatedAt)}</td>
+            <td>${formatDateTime(log.Zeitstempel)}</td>
             <td>${log.Nutzer}</td>
             <td>${log.Feld}</td>
             <td>${log.Wert}</td>

@@ -128,14 +128,15 @@ function createLogEntry($conn, $bildId, $feld, $wert, $aktion) {
         error_log("Finaler Benutzer: $nutzer");
         
         // Log-Eintrag erstellen
-        $sql = "INSERT INTO [dbo].[log_bewertung] ([bilder_id], [Feld], [Wert], [Nutzer]) 
-                VALUES (:bilder_id, :feld, :wert, :nutzer)";
+        $sql = "INSERT INTO [dbo].[log_bewertung] ([bilder_id], [Feld], [Wert], [Nutzer], [Zeitstempel]) 
+                VALUES (:bilder_id, :feld, :wert, :nutzer, :zeitstempel)";
         
         $stmt = $conn->prepare($sql);
         $stmt->bindValue(':bilder_id', (int)$bildId, PDO::PARAM_INT);
         $stmt->bindValue(':feld', $feld, PDO::PARAM_STR);
         $stmt->bindValue(':wert', (int)$wert, PDO::PARAM_INT);
         $stmt->bindValue(':nutzer', $nutzer, PDO::PARAM_STR);
+        $stmt->bindValue(':zeitstempel', date('Y-m-d H:i:s'), PDO::PARAM_STR);
         $stmt->execute();
         
         // Log-Eintrag erfolgreich erstellt
