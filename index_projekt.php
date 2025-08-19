@@ -71,14 +71,19 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
     <?php if (isset($statistics['error'])): ?>
         <p style="color: red;"><?= $statistics['error'] ?></p>
     <?php else: ?>
-        <table style="width: auto; border-collapse: collapse; margin: 20px 0; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <thead>
-                <tr style="background: #f8f9fa;">
-                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Kategorie</th>
-                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Anzahl</th>
-                </tr>
-            </thead>
-                                <tbody>
+        <!-- Zwei-Spalten-Layout -->
+        <div style="display: flex; gap: 15px; margin-top: 20px; justify-content: flex-start; align-items: flex-start;">
+            <!-- Linke Spalte: Straßenbewertung -->
+            <div style="flex: 1;">
+                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.3rem;">Straßenbewertung</h3>
+                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Kategorie</th>
+                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Anzahl</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <tr>
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Gesamtzahl der Bilder:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #007bff;">
@@ -160,7 +165,54 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             </td>
                         </tr>
                     </tbody>
-        </table>
+                </table>
+            </div>
+            
+            <!-- Rechte Spalte: Netzknoten -->
+            <div style="flex: 1;">
+                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.3rem;">Netzknoten</h3>
+                
+                <!-- Netzknoten Tabelle -->
+                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Modell</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Kein Modell hochgeladen</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Zuordnung Netzknoten Tabelle -->
+                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Zuordnung Netzknoten</th>
+                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Anzahl</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zugeordnet</td>
+                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #007bff;">0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Nicht zugeordnet</td>
+                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #6c757d;">
+                                <?php if ($statistics['gesamt'] > 0): ?>
+                                    <a href="bewertung/bewertung.php?filter=all" style="color: #6c757d; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($statistics['gesamt']) ?></a>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($statistics['gesamt']) ?>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     <?php endif; ?>
 <?php elseif (is_string($aktuellesProjekt) && !empty($aktuellesProjekt)): ?>
     <p><?= $aktuellesProjekt ?></p>
@@ -168,9 +220,4 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
     <p>Kein Projekt ausgewählt.</p>
 <?php endif; ?>
 
-<!-- Button immer unten -->
-<?php if (!empty($_SESSION['PROJEKT_ID'])): ?>
-    <div style="margin-top:20px;">
-        <a href="bewertung/bewertung.php" class="button-link">Zur Bewertung</a>
-    </div>
-<?php endif; ?>
+
