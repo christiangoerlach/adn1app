@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8" />
-    <title>AJAX Bildergalerie aus Azure Blob</title>
+    <title>Azure Blob</title>
     <style>
         body { 
             text-align: center; 
