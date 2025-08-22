@@ -27,7 +27,7 @@
         
         .bewertung-section {
             flex: 0 0 350px;
-            padding: 20px;
+            padding: 15px;
             background: #f5f5f5;
             border-radius: 10px;
         }
@@ -57,15 +57,15 @@
         .bewertung-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
+            gap: 8px;
+            margin: 12px 0;
         }
         
         .bewertung-btn {
-            padding: 6px 8px;
-            font-size: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 4px;
+            padding: 4px 6px;
+            font-size: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
             background: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -84,51 +84,61 @@
         
         .bewertung-row-1 {
             display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 4px;
+            margin-bottom: 8px;
             justify-content: space-between;
+        }
+        
+        .bewertung-row-1 .bewertung-btn {
+            flex: 1;
         }
         
         .bewertung-row-2 {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: space-between;
         }
         
         .bewertung-row-2 .bewertung-btn {
             flex: 1;
-            padding: 10px 8px;
-            font-size: 0.8rem;
+            padding: 6px 8px;
+            font-size: 0.75rem;
             white-space: nowrap;
             text-align: center;
         }
         
+        /* Spezielle Styles für die Straßen-Buttons in Zeile 2 */
+        .strasse-row-2 {
+            padding: 6px 8px !important;
+            font-size: 0.75rem !important;
+        }
+        
         /* Neue Bewertungsabschnitte */
         .bewertung-abschnitte {
-            margin: 20px 0;
+            margin: 12px 0;
         }
         
         .bewertung-abschnitt {
-            margin-bottom: 15px;
-            padding: 12px;
+            margin-bottom: 10px;
+            padding: 8px;
             background: white;
-            border-radius: 6px;
+            border-radius: 4px;
             border: 1px solid #ddd;
         }
         
         .bewertung-abschnitt h4 {
-            margin: 0 0 8px 0;
-            font-size: 0.9rem;
+            margin: 0 0 6px 0;
+            font-size: 0.8rem;
             color: #333;
             font-weight: 600;
         }
         
         .bewertung-dropdown {
             width: 100%;
-            padding: 6px 8px;
+            padding: 4px 6px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
             background: white;
             cursor: pointer;
         }
@@ -142,16 +152,16 @@
         /* Markierungsbuttons */
         .markierung-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 6px;
         }
         
         .markierung-btn {
             flex: 1;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
             background: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -171,11 +181,11 @@
         /* Notizen-Textarea */
         .notizen-textarea {
             width: 100%;
-            min-height: 80px;
-            padding: 8px;
+            min-height: 60px;
+            padding: 6px;
             border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
             font-family: Arial, sans-serif;
             resize: vertical;
             box-sizing: border-box;
@@ -191,15 +201,16 @@
             text-align: right;
             font-size: 0.7rem;
             color: #666;
-            margin-top: 4px;
+            margin-top: 3px;
         }
         
         .status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
+            margin-top: 12px;
+            padding: 8px;
+            border-radius: 4px;
             text-align: center;
             font-weight: bold;
+            font-size: 0.75rem;
         }
         
         .status.success {
@@ -332,19 +343,21 @@
         
         /* Ausklappbare Bereiche */
         .collapsible-section {
-            margin-top: 20px;
+            margin-top: 12px;
         }
         
         .collapsible-header {
             cursor: pointer;
-            padding: 15px 20px;
+            padding: 10px 12px;
             background: #e9ecef;
-            border-radius: 10px;
+            border-radius: 6px;
             margin: 0;
             display: flex;
             align-items: center;
             transition: background-color 0.3s ease;
             user-select: none;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
         
         .collapsible-header:hover {
@@ -352,16 +365,16 @@
         }
         
         .toggle-icon {
-            margin-right: 10px;
-            font-size: 0.8rem;
+            margin-right: 8px;
+            font-size: 0.7rem;
             transition: transform 0.3s ease;
             color: #007bff;
         }
         
         .collapsible-content {
-            padding: 20px;
+            padding: 12px;
             background: #f8f9fa;
-            border-radius: 0 0 10px 10px;
+            border-radius: 0 0 6px 6px;
             border-top: 1px solid #dee2e6;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -409,40 +422,51 @@
     </div>
     
     <div class="bewertung-section">
-        <h3>Straßenzustandsklasse</h3>
-        
-        <div class="bewertung-buttons">
-            <div class="bewertung-row-1">
-                <button class="bewertung-btn" data-value="1">1</button>
-                <button class="bewertung-btn" data-value="2">2</button>
-                <button class="bewertung-btn" data-value="3">3</button>
-                <button class="bewertung-btn" data-value="4">4</button>
-                <button class="bewertung-btn" data-value="5">5</button>
-                <button class="bewertung-btn" data-value="6">6</button>
-            </div>
-            <div class="bewertung-row-2">
-                <button class="bewertung-btn" data-value="0">Noch nicht bewertet</button>
-                <button class="bewertung-btn" data-value="9">Bewertung ausgeschlossen</button>
-            </div>
-        </div>
-        
-        <div id="bewertung-status"></div>
-        
-        <!-- Review und Schaden Buttons -->
-        <div class="bewertung-abschnitt">
-            <h4>Markierungen</h4>
-            <div class="markierung-buttons">
-                <button class="markierung-btn" id="review-btn" data-feld="review" data-value="0">Review</button>
-                <button class="markierung-btn" id="schaden-btn" data-feld="schaden" data-value="0">Schaden</button>
-            </div>
-        </div>
-        
-        <!-- Freitext-Notizen -->
-        <div class="bewertung-abschnitt">
-            <h4>Notizen</h4>
-            <textarea id="notizen-text" class="notizen-textarea" placeholder="Freitext-Notizen hier eingeben..." maxlength="1000"></textarea>
-            <div class="zeichen-zaehler">
-                <span id="zeichen-anzahl">0</span> / 1000 Zeichen
+        <!-- Straße ausklappbarer Abschnitt -->
+        <div class="collapsible-section strasse-section">
+            <h3 class="collapsible-header" data-target="strasse-content">
+                <span class="toggle-icon">▶</span>
+                Straße
+            </h3>
+            <div id="strasse-content" class="collapsible-content collapsed">
+                <!-- Straßenbewertung -->
+                <div class="bewertung-abschnitt">
+                    <h4>Straßenzustandsklasse</h4>
+                    <div class="bewertung-buttons">
+                        <div class="bewertung-row-1">
+                            <button class="bewertung-btn" data-value="1">1</button>
+                            <button class="bewertung-btn" data-value="2">2</button>
+                            <button class="bewertung-btn" data-value="3">3</button>
+                            <button class="bewertung-btn" data-value="4">4</button>
+                            <button class="bewertung-btn" data-value="5">5</button>
+                            <button class="bewertung-btn" data-value="6">6</button>
+                        </div>
+                        <div class="bewertung-row-2">
+                            <button class="bewertung-btn strasse-row-2" data-value="0">Noch nicht bewertet</button>
+                            <button class="bewertung-btn strasse-row-2" data-value="9">Bewertung ausgeschlossen</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="bewertung-status"></div>
+                
+                <!-- Review und Schaden Buttons -->
+                <div class="bewertung-abschnitt">
+                    <h4>Markierungen</h4>
+                    <div class="markierung-buttons">
+                        <button class="markierung-btn" id="review-btn" data-feld="review" data-value="0">Review</button>
+                        <button class="markierung-btn" id="schaden-btn" data-feld="schaden" data-value="0">Schaden</button>
+                    </div>
+                </div>
+                
+                <!-- Freitext-Notizen -->
+                <div class="bewertung-abschnitt">
+                    <h4>Notizen</h4>
+                    <textarea id="notizen-text" class="notizen-textarea" placeholder="Freitext-Notizen hier eingeben..." maxlength="1000"></textarea>
+                    <div class="zeichen-zaehler">
+                        <span id="zeichen-anzahl">0</span> / 1000 Zeichen
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -454,27 +478,25 @@
             </h3>
             <div id="gehweg-content" class="collapsible-content collapsed">
                 <div class="bewertung-abschnitte">
-                    <div class="bewertung-abschnitt">
-                        <h4>Gehweg Links</h4>
-                        <select class="bewertung-dropdown" data-feld="gehweg_links" data-bild-id="">
-                            <option value="">Bitte wählen...</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="0">Noch nicht bewertet</option>
-                            <option value="9">Bewertung ausgeschlossen</option>
-                            <option value="10">Nicht vorhanden</option>
-                            <option value="11">Wie Straße</option>
-                        </select>
-                    </div>
+                                    <div class="bewertung-abschnitt">
+                    <h4>Gehweg Links</h4>
+                    <select class="bewertung-dropdown" data-feld="gehweg_links" data-bild-id="">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="0">Noch nicht bewertet</option>
+                        <option value="9">Bewertung ausgeschlossen</option>
+                        <option value="10">Nicht vorhanden</option>
+                        <option value="11">Wie Straße</option>
+                    </select>
+                </div>
                     
                     <div class="bewertung-abschnitt">
                         <h4>Gehweg Rechts</h4>
                         <select class="bewertung-dropdown" data-feld="gehweg_rechts" data-bild-id="">
-                            <option value="">Bitte wählen...</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -491,7 +513,6 @@
                     <div class="bewertung-abschnitt">
                         <h4>Seitenstreifen Links</h4>
                         <select class="bewertung-dropdown" data-feld="seitenstreifen_links" data-bild-id="">
-                            <option value="">Bitte wählen...</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -508,7 +529,6 @@
                     <div class="bewertung-abschnitt">
                         <h4>Seitenstreifen Rechts</h4>
                         <select class="bewertung-dropdown" data-feld="seitenstreifen_rechts" data-bild-id="">
-                            <option value="">Bitte wählen...</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -651,10 +671,11 @@ function updateDropdownValues(data) {
     
     felder.forEach(feld => {
         const dropdown = document.querySelector(`[data-feld="${feld}"]`);
-        if (dropdown && data[feld] !== undefined) {
+        if (dropdown && data[feld] !== undefined && data[feld] !== null) {
             dropdown.value = data[feld];
         } else if (dropdown) {
-            dropdown.value = '';
+            // Kein Wert setzen - Dropdown bleibt leer
+            dropdown.selectedIndex = -1;
         }
     });
     
