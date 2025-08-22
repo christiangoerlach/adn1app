@@ -204,13 +204,30 @@
             margin-top: 3px;
         }
         
+        /* Status-Container mit fester Höhe */
+        .status-container {
+            min-height: 40px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .status {
-            margin-top: 12px;
-            padding: 8px;
+            padding: 8px 12px;
             border-radius: 4px;
             text-align: center;
             font-weight: bold;
             font-size: 0.75rem;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .status.show {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         .status.success {
@@ -422,6 +439,9 @@
     </div>
     
     <div class="bewertung-section">
+        <!-- Status-Bereich mit fester Höhe -->
+        <div id="bewertung-status" class="status-container"></div>
+        
         <!-- Straße ausklappbarer Abschnitt -->
         <div class="collapsible-section strasse-section">
             <h3 class="collapsible-header" data-target="strasse-content">
@@ -447,8 +467,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <div id="bewertung-status"></div>
                 
                 <!-- Review und Schaden Buttons -->
                 <div class="bewertung-abschnitt">
@@ -587,6 +605,26 @@
 let images = [];
 let currentIndex = 0;
 let currentBildId = null;
+let saveNotizenTimeout = null; // Für Debouncing der Notizen-Speicherung
+
+// Erweiterte Bildvorlade-Strategie
+function preloadImages(currentIndex) {
+    // Vorladen der nächsten 3 Bilder für flüssige Navigation
+    for (let i = 1; i <= 3; i++) {
+        const preloadIndex = currentIndex + i;
+        if (preloadIndex < images.length) {
+            preloadImage(images[preloadIndex]);
+        }
+    }
+    
+    // Auch die vorherigen 2 Bilder vorladen für Zurück-Navigation
+    for (let i = 1; i <= 2; i++) {
+        const preloadIndex = currentIndex - i;
+        if (preloadIndex >= 0) {
+            preloadImage(images[preloadIndex]);
+        }
+    }
+}
 
 function preloadImage(imageData) {
     const img = new Image();
@@ -623,13 +661,8 @@ function updateImage() {
     document.getElementById('prevBtn').disabled = currentIndex === 0;
     document.getElementById('nextBtn').disabled = currentIndex === images.length - 1;
 
-    // Preload next 2 images for smoother experience
-    for (let i = 1; i <= 2; i++) {
-        const preloadIndex = currentIndex + i;
-        if (preloadIndex < images.length) {
-            preloadImage(images[preloadIndex]);
-        }
-    }
+    // Erweiterte Bildvorlade-Strategie für bessere Performance
+    preloadImages(currentIndex);
 }
 
 // Bewertung für ein Bild laden
@@ -690,6 +723,13 @@ function updateDropdownValues(data) {
 function saveBewertung(strasse) {
     if (!currentBildId) return;
     
+    // Sofortige UI-Updates für bessere Performance
+    updateBewertungButtons(strasse);
+    
+    // Optimistisches Update - Log-Tabelle sofort neu laden
+    invalidateLogCache(currentBildId);
+    loadLogData(currentBildId);
+    
     fetch('save_bewertung.php', {
         method: 'POST',
         headers: {
@@ -703,41 +743,59 @@ function saveBewertung(strasse) {
     .then(response => response.json())
     .then(data => {
         if (data && data.success) {
-            updateBewertungButtons(strasse);
             showStatus('Bewertung erfolgreich gespeichert!', 'success');
-            
-            // Log-Tabelle neu laden nach Bewertungsänderung
-            if (currentBildId) {
-                loadLogData(currentBildId);
-            }
         } else {
             const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Bewertung';
             console.error('Speicher-Response:', data);
             showStatus(msg, 'error');
+            // Bei Fehler UI zurücksetzen
+            loadBewertung(currentBildId);
         }
     })
     .catch(error => {
         console.error('Fehler beim Speichern der Bewertung:', error);
-        showStatus(error && error.message ? error.message : 'Fehler beim Speichern der Bewertung', 'error');
+        showStatus('Fehler beim Speichern der Bewertung', 'error');
+        // Bei Fehler UI zurücksetzen
+        loadBewertung(currentBildId);
     });
 }
 
 // Status anzeigen
 function showStatus(message, type) {
-    const statusDiv = document.getElementById('bewertung-status');
+    const statusContainer = document.getElementById('bewertung-status');
+    
+    // Neues Status-Element erstellen
+    const statusDiv = document.createElement('div');
     statusDiv.textContent = message;
     statusDiv.className = `status ${type}`;
     
+    // Container leeren und neues Element hinzufügen
+    statusContainer.innerHTML = '';
+    statusContainer.appendChild(statusDiv);
+    
+    // Animation einblenden
+    setTimeout(() => {
+        statusDiv.classList.add('show');
+    }, 10);
+    
     // Status nach 3 Sekunden ausblenden
     setTimeout(() => {
-        statusDiv.textContent = '';
-        statusDiv.className = '';
+        statusDiv.classList.remove('show');
+        setTimeout(() => {
+            if (statusContainer.contains(statusDiv)) {
+                statusContainer.removeChild(statusDiv);
+            }
+        }, 300); // Warten auf Fade-out Animation
     }, 3000);
 }
 
 // Dropdown-Bewertung speichern
 function saveDropdownBewertung(feld, wert) {
     if (!currentBildId) return;
+    
+    // Optimistisches Update - Log-Tabelle sofort neu laden
+    invalidateLogCache(currentBildId);
+    loadLogData(currentBildId);
     
     fetch('save_dropdown_bewertung.php', {
         method: 'POST',
@@ -754,20 +812,19 @@ function saveDropdownBewertung(feld, wert) {
     .then(data => {
         if (data && data.success) {
             showStatus(`${feld.replace('_', ' ')} Bewertung erfolgreich gespeichert!`, 'success');
-            
-            // Log-Tabelle neu laden nach Bewertungsänderung
-            if (currentBildId) {
-                loadLogData(currentBildId);
-            }
         } else {
             const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Bewertung';
             console.error('Speicher-Response:', data);
             showStatus(msg, 'error');
+            // Bei Fehler UI zurücksetzen
+            loadBewertung(currentBildId);
         }
     })
     .catch(error => {
         console.error('Fehler beim Speichern der Dropdown-Bewertung:', error);
         showStatus('Fehler beim Speichern der Bewertung', 'error');
+        // Bei Fehler UI zurücksetzen
+        loadBewertung(currentBildId);
     });
 }
 
@@ -794,8 +851,8 @@ function updateMarkierungButtons(data) {
 // Notizen aktualisieren
 function updateNotizen(data) {
     const notizenText = document.getElementById('notizen-text');
-    if (notizenText && data.notizen !== undefined) {
-        notizenText.value = data.notizen || '';
+    if (notizenText && data.text !== undefined) {
+        notizenText.value = data.text || '';
         updateZeichenZaehler();
     }
 }
@@ -803,6 +860,10 @@ function updateNotizen(data) {
 // Markierung speichern
 function saveMarkierung(feld, wert) {
     if (!currentBildId) return;
+    
+    // Optimistisches Update - Log-Tabelle sofort neu laden
+    invalidateLogCache(currentBildId);
+    loadLogData(currentBildId);
     
     fetch('save_markierung.php', {
         method: 'POST',
@@ -819,26 +880,29 @@ function saveMarkierung(feld, wert) {
     .then(data => {
         if (data && data.success) {
             showStatus(`${feld} erfolgreich gespeichert!`, 'success');
-            
-            // Log-Tabelle neu laden nach Änderung
-            if (currentBildId) {
-                loadLogData(currentBildId);
-            }
         } else {
             const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Markierung';
             console.error('Speicher-Response:', data);
             showStatus(msg, 'error');
+            // Bei Fehler UI zurücksetzen
+            loadBewertung(currentBildId);
         }
     })
     .catch(error => {
         console.error('Fehler beim Speichern der Markierung:', error);
         showStatus('Fehler beim Speichern der Markierung', 'error');
+        // Bei Fehler UI zurücksetzen
+        loadBewertung(currentBildId);
     });
 }
 
 // Notizen speichern
 function saveNotizen(notizen) {
     if (!currentBildId) return;
+    
+    // Optimistisches Update - Log-Tabelle sofort neu laden
+    invalidateLogCache(currentBildId);
+    loadLogData(currentBildId);
     
     fetch('save_notizen.php', {
         method: 'POST',
@@ -847,27 +911,26 @@ function saveNotizen(notizen) {
         },
         body: JSON.stringify({
             bildId: currentBildId,
-            notizen: notizen
+            text: notizen
         })
     })
     .then(response => response.json())
     .then(data => {
         if (data && data.success) {
             showStatus('Notizen erfolgreich gespeichert!', 'success');
-            
-            // Log-Tabelle neu laden nach Änderung
-            if (currentBildId) {
-                loadLogData(currentBildId);
-            }
         } else {
             const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Notizen';
             console.error('Speicher-Response:', data);
             showStatus(msg, 'error');
+            // Bei Fehler UI zurücksetzen
+            loadBewertung(currentBildId);
         }
     })
     .catch(error => {
         console.error('Fehler beim Speichern der Notizen:', error);
         showStatus('Fehler beim Speichern der Notizen', 'error');
+        // Bei Fehler UI zurücksetzen
+            loadBewertung(currentBildId);
     });
 }
 
@@ -1075,8 +1138,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Zeichenzähler beim Tippen aktualisieren
         notizenText.addEventListener('input', updateZeichenZaehler);
         
-        // Notizen speichern wenn das Feld verlassen wird
+        // Notizen mit Debouncing speichern (500ms Verzögerung)
+        notizenText.addEventListener('input', function() {
+            clearTimeout(saveNotizenTimeout);
+            saveNotizenTimeout = setTimeout(() => {
+                const notizen = this.value.trim();
+                saveNotizen(notizen);
+            }, 500);
+        });
+        
+        // Notizen sofort speichern wenn das Feld verlassen wird
         notizenText.addEventListener('blur', function() {
+            clearTimeout(saveNotizenTimeout);
             const notizen = this.value.trim();
             saveNotizen(notizen);
         });
@@ -1120,9 +1193,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Log-Daten für ein Bild laden
 function loadLogData(bildId) {
+    // Cache für Log-Daten um doppelte Anfragen zu vermeiden
+    if (window.logCache && window.logCache[bildId]) {
+        updateLogTable(window.logCache[bildId]);
+        return;
+    }
+    
     fetch(`get_log_data.php?bildId=${bildId}`)
         .then(response => response.json())
         .then(data => {
+            // Cache aktualisieren
+            if (!window.logCache) window.logCache = {};
+            window.logCache[bildId] = data;
             updateLogTable(data);
         })
         .catch(error => {
@@ -1148,6 +1230,13 @@ function updateLogTable(logData) {
             <td>${log.Wert}</td>
         </tr>
     `).join('');
+}
+
+// Cache für Log-Daten invalidieren (wird aufgerufen wenn neue Einträge hinzugefügt werden)
+function invalidateLogCache(bildId) {
+    if (window.logCache && window.logCache[bildId]) {
+        delete window.logCache[bildId];
+    }
 }
 
 // Datum/Zeit formatieren

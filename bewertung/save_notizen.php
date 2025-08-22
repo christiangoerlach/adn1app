@@ -29,7 +29,7 @@ if (empty($input) && !empty($_POST)) {
 }
 
 $bildId = $input['bildId'] ?? null;
-$notizen = $input['notizen'] ?? '';
+$text = $input['text'] ?? '';
 
 // Validiere Eingaben
 if ($bildId === null) {
@@ -39,7 +39,7 @@ if ($bildId === null) {
 }
 
 // Notizen sind optional, können leer sein
-$notizen = trim($notizen);
+$text = trim($text);
 
 try {
     // Prüfe ob bereits eine Bewertung für dieses Bild existiert
@@ -54,18 +54,18 @@ try {
         // Prüfe ob sich der Wert tatsächlich geändert hat
         $oldValue = $existingBewertung['text'] ?? '';
         
-        if ($oldValue !== $notizen) {
+        if ($oldValue !== $text) {
             // Update existierende Bewertung nur wenn sich der Wert geändert hat
             $sql = "UPDATE [dbo].[bewertung] 
                     SET [text] = :notizen
                     WHERE [bilder-id] = :bild_id";
             $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':notizen', $notizen, PDO::PARAM_STR);
+            $stmt->bindValue(':notizen', $text, PDO::PARAM_STR);
             $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
             $stmt->execute();
             
             // Log-Eintrag für Update erstellen
-            createLogEntry($conn, $bildId, 'text', $notizen, 'update');
+            createLogEntry($conn, $bildId, 'text', $text, 'update');
             
             echo json_encode(['success' => true, 'action' => 'updated']);
         } else {
@@ -78,11 +78,11 @@ try {
                 VALUES (:bild_id, :notizen)";
         $stmt = $conn->prepare($sql);
         $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
-        $stmt->bindValue(':notizen', $notizen, PDO::PARAM_STR);
+        $stmt->bindValue(':notizen', $text, PDO::PARAM_STR);
         $stmt->execute();
         
         // Log-Eintrag für neue Bewertung erstellen
-        createLogEntry($conn, $bildId, 'text', $notizen, 'create');
+        createLogEntry($conn, $bildId, 'text', $text, 'create');
         
         echo json_encode(['success' => true, 'action' => 'created']);
     }
