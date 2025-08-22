@@ -103,6 +103,97 @@
             text-align: center;
         }
         
+        /* Neue Bewertungsabschnitte */
+        .bewertung-abschnitte {
+            margin: 20px 0;
+        }
+        
+        .bewertung-abschnitt {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        
+        .bewertung-abschnitt h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .bewertung-dropdown {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .bewertung-dropdown:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Markierungsbuttons */
+        .markierung-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .markierung-btn {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .markierung-btn:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+        }
+        
+        .markierung-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        /* Notizen-Textarea */
+        .notizen-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        .notizen-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        .zeichen-zaehler {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 4px;
+        }
+        
         .status {
             margin-top: 20px;
             padding: 10px;
@@ -337,6 +428,95 @@
         
         <div id="bewertung-status"></div>
         
+        <!-- Neue Bewertungsabschnitte -->
+        <div class="bewertung-abschnitte">
+            <div class="bewertung-abschnitt">
+                <h4>Gehweg Links</h4>
+                <select class="bewertung-dropdown" data-feld="gehweg_links" data-bild-id="">
+                    <option value="">Bitte wählen...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="0">Noch nicht bewertet</option>
+                    <option value="9">Bewertung ausgeschlossen</option>
+                    <option value="10">Nicht vorhanden</option>
+                    <option value="11">Wie Straße</option>
+                </select>
+            </div>
+            
+            <div class="bewertung-abschnitt">
+                <h4>Gehweg Rechts</h4>
+                <select class="bewertung-dropdown" data-feld="gehweg_rechts" data-bild-id="">
+                    <option value="">Bitte wählen...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="0">Noch nicht bewertet</option>
+                    <option value="9">Bewertung ausgeschlossen</option>
+                    <option value="10">Nicht vorhanden</option>
+                    <option value="11">Wie Straße</option>
+                </select>
+            </div>
+            
+            <div class="bewertung-abschnitt">
+                <h4>Seitenstreifen Links</h4>
+                <select class="bewertung-dropdown" data-feld="seitenstreifen_links" data-bild-id="">
+                    <option value="">Bitte wählen...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="0">Noch nicht bewertet</option>
+                    <option value="9">Bewertung ausgeschlossen</option>
+                    <option value="10">Nicht vorhanden</option>
+                    <option value="11">Wie Straße</option>
+                </select>
+            </div>
+            
+            <div class="bewertung-abschnitt">
+                <h4>Seitenstreifen Rechts</h4>
+                <select class="bewertung-dropdown" data-feld="seitenstreifen_rechts" data-bild-id="">
+                    <option value="">Bitte wählen...</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="0">Noch nicht bewertet</option>
+                    <option value="9">Bewertung ausgeschlossen</option>
+                    <option value="10">Nicht vorhanden</option>
+                    <option value="11">Wie Straße</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Review und Schaden Buttons -->
+        <div class="bewertung-abschnitt">
+            <h4>Markierungen</h4>
+            <div class="markierung-buttons">
+                <button class="markierung-btn" id="review-btn" data-feld="review" data-value="0">Review</button>
+                <button class="markierung-btn" id="schaden-btn" data-feld="schaden" data-value="0">Schaden</button>
+            </div>
+        </div>
+        
+        <!-- Freitext-Notizen -->
+        <div class="bewertung-abschnitt">
+            <h4>Notizen</h4>
+            <textarea id="notizen-text" class="notizen-textarea" placeholder="Freitext-Notizen hier eingeben..." maxlength="1000"></textarea>
+            <div class="zeichen-zaehler">
+                <span id="zeichen-anzahl">0</span> / 1000 Zeichen
+            </div>
+        </div>
+        
         <div class="collapsible-section map-section">
             <h3 class="collapsible-header" data-target="map-content">
                 <span class="toggle-icon">▶</span>
@@ -432,6 +612,8 @@ function loadBewertung(bildId) {
             if (data.strasse !== undefined) {
                 updateBewertungButtons(data.strasse);
             }
+            // Neue Felder laden
+            updateDropdownValues(data);
         })
         .catch(error => {
             console.error('Fehler beim Laden der Bewertung:', error);
@@ -453,6 +635,26 @@ function updateBewertungButtons(strasse) {
     if (activeBtn) {
         activeBtn.classList.add('active');
     }
+}
+
+// Dropdown-Werte aktualisieren
+function updateDropdownValues(data) {
+    const felder = ['gehweg_links', 'gehweg_rechts', 'seitenstreifen_links', 'seitenstreifen_rechts'];
+    
+    felder.forEach(feld => {
+        const dropdown = document.querySelector(`[data-feld="${feld}"]`);
+        if (dropdown && data[feld] !== undefined) {
+            dropdown.value = data[feld];
+        } else if (dropdown) {
+            dropdown.value = '';
+        }
+    });
+    
+    // Markierungsbuttons aktualisieren
+    updateMarkierungButtons(data);
+    
+    // Notizen aktualisieren
+    updateNotizen(data);
 }
 
 // Bewertung speichern
@@ -502,6 +704,162 @@ function showStatus(message, type) {
         statusDiv.textContent = '';
         statusDiv.className = '';
     }, 3000);
+}
+
+// Dropdown-Bewertung speichern
+function saveDropdownBewertung(feld, wert) {
+    if (!currentBildId) return;
+    
+    fetch('save_dropdown_bewertung.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            bildId: currentBildId,
+            feld: feld,
+            wert: wert
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.success) {
+            showStatus(`${feld.replace('_', ' ')} Bewertung erfolgreich gespeichert!`, 'success');
+            
+            // Log-Tabelle neu laden nach Bewertungsänderung
+            if (currentBildId) {
+                loadLogData(currentBildId);
+            }
+        } else {
+            const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Bewertung';
+            console.error('Speicher-Response:', data);
+            showStatus(msg, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern der Dropdown-Bewertung:', error);
+        showStatus('Fehler beim Speichern der Bewertung', 'error');
+    });
+}
+
+// Markierungsbuttons aktualisieren
+function updateMarkierungButtons(data) {
+    const reviewBtn = document.getElementById('review-btn');
+    const schadenBtn = document.getElementById('schaden-btn');
+    
+    if (reviewBtn && data.review !== undefined) {
+        // Setze den aktuellen Wert aus der Datenbank
+        const reviewWert = parseInt(data.review) || 0;
+        reviewBtn.setAttribute('data-value', reviewWert);
+        reviewBtn.classList.toggle('active', reviewWert === 1);
+    }
+    
+    if (schadenBtn && data.schaden !== undefined) {
+        // Setze den aktuellen Wert aus der Datenbank
+        const schadenWert = parseInt(data.schaden) || 0;
+        schadenBtn.setAttribute('data-value', schadenWert);
+        schadenBtn.classList.toggle('active', schadenWert === 1);
+    }
+}
+
+// Notizen aktualisieren
+function updateNotizen(data) {
+    const notizenText = document.getElementById('notizen-text');
+    if (notizenText && data.notizen !== undefined) {
+        notizenText.value = data.notizen || '';
+        updateZeichenZaehler();
+    }
+}
+
+// Markierung speichern
+function saveMarkierung(feld, wert) {
+    if (!currentBildId) return;
+    
+    fetch('save_markierung.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            bildId: currentBildId,
+            feld: feld,
+            wert: wert
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.success) {
+            showStatus(`${feld} erfolgreich gespeichert!`, 'success');
+            
+            // Log-Tabelle neu laden nach Änderung
+            if (currentBildId) {
+                loadLogData(currentBildId);
+            }
+        } else {
+            const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Markierung';
+            console.error('Speicher-Response:', data);
+            showStatus(msg, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern der Markierung:', error);
+        showStatus('Fehler beim Speichern der Markierung', 'error');
+    });
+}
+
+// Notizen speichern
+function saveNotizen(notizen) {
+    if (!currentBildId) return;
+    
+    fetch('save_notizen.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            bildId: currentBildId,
+            notizen: notizen
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.success) {
+            showStatus('Notizen erfolgreich gespeichert!', 'success');
+            
+            // Log-Tabelle neu laden nach Änderung
+            if (currentBildId) {
+                loadLogData(currentBildId);
+            }
+        } else {
+            const msg = (data && data.error) ? data.error : 'Fehler beim Speichern der Notizen';
+            console.error('Speicher-Response:', data);
+            showStatus(msg, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern der Notizen:', error);
+        showStatus('Fehler beim Speichern der Notizen', 'error');
+    });
+}
+
+// Zeichenzähler aktualisieren
+function updateZeichenZaehler() {
+    const notizenText = document.getElementById('notizen-text');
+    const zeichenAnzahl = document.getElementById('zeichen-anzahl');
+    
+    if (notizenText && zeichenAnzahl) {
+        const aktuelleZeichen = notizenText.value.length;
+        zeichenAnzahl.textContent = aktuelleZeichen;
+        
+        // Farbe ändern wenn 80% erreicht sind
+        if (aktuelleZeichen >= 800) {
+            zeichenAnzahl.style.color = '#dc3545';
+        } else if (aktuelleZeichen >= 600) {
+            zeichenAnzahl.style.color = '#ffc107';
+        } else {
+            zeichenAnzahl.style.color = '#666';
+        }
+    }
 }
 
 function loadImages() {
@@ -655,6 +1013,49 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Dropdown-Event-Listener
+    document.querySelectorAll('.bewertung-dropdown').forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const feld = this.getAttribute('data-feld');
+            const wert = this.value;
+            if (wert !== '') {
+                saveDropdownBewertung(feld, parseInt(wert));
+            }
+        });
+    });
+    
+    // Markierungsbutton-Event-Listener
+    document.querySelectorAll('.markierung-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const feld = this.getAttribute('data-feld');
+            const aktuellerWert = parseInt(this.getAttribute('data-value'));
+            const neuerWert = aktuellerWert === 1 ? 0 : 1;
+            
+            // Button-Status sofort aktualisieren
+            this.setAttribute('data-value', neuerWert);
+            this.classList.toggle('active', neuerWert === 1);
+            
+            // In Datenbank speichern
+            saveMarkierung(feld, neuerWert);
+        });
+    });
+    
+    // Notizen-Event-Listener
+    const notizenText = document.getElementById('notizen-text');
+    if (notizenText) {
+        // Zeichenzähler beim Tippen aktualisieren
+        notizenText.addEventListener('input', updateZeichenZaehler);
+        
+        // Notizen speichern wenn das Feld verlassen wird
+        notizenText.addEventListener('blur', function() {
+            const notizen = this.value.trim();
+            saveNotizen(notizen);
+        });
+        
+        // Initial Zeichenzähler aktualisieren
+        updateZeichenZaehler();
+    }
+    
     // Ausklappbare Bereiche
     document.querySelectorAll('.collapsible-header').forEach(header => {
         header.addEventListener('click', function() {
@@ -726,13 +1127,16 @@ function formatDateTime(dateTimeString) {
     
     try {
         const date = new Date(dateTimeString);
+        
+        // Verwende die deutsche Zeitzone direkt
         return date.toLocaleString('de-DE', {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            second: '2-digit'
+            second: '2-digit',
+            timeZone: 'Europe/Berlin'
         });
     } catch (error) {
         return dateTimeString;

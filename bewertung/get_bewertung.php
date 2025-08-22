@@ -14,8 +14,9 @@ if ($bildId === null) {
 }
 
 try {
-    // Hole Bewertung für das angegebene Bild
-    $sql = "SELECT [strasse] FROM [dbo].[bewertung] WHERE [bilder-id] = :bild_id";
+    // Hole Bewertung für das angegebene Bild (alle Felder)
+    $sql = "SELECT [strasse], [gehweg_links], [gehweg_rechts], [seitenstreifen_links], [seitenstreifen_rechts], [review], [schaden], [text] 
+            FROM [dbo].[bewertung] WHERE [bilder-id] = :bild_id";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
     $stmt->execute();
@@ -23,10 +24,28 @@ try {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($result) {
-        echo json_encode(['strasse' => (int)$result['strasse']]);
+        echo json_encode([
+            'strasse' => (int)$result['strasse'],
+            'gehweg_links' => $result['gehweg_links'] !== null ? (int)$result['gehweg_links'] : null,
+            'gehweg_rechts' => $result['gehweg_rechts'] !== null ? (int)$result['gehweg_rechts'] : null,
+            'seitenstreifen_links' => $result['seitenstreifen_links'] !== null ? (int)$result['seitenstreifen_links'] : null,
+            'seitenstreifen_rechts' => $result['seitenstreifen_rechts'] !== null ? (int)$result['seitenstreifen_rechts'] : null,
+            'review' => $result['review'] !== null ? (int)$result['review'] : 0,
+            'schaden' => $result['schaden'] !== null ? (int)$result['schaden'] : 0,
+            'notizen' => $result['text'] !== null ? $result['text'] : ''
+        ]);
     } else {
         // Keine Bewertung gefunden
-        echo json_encode(['strasse' => 0]);
+        echo json_encode([
+            'strasse' => 0,
+            'gehweg_links' => null,
+            'gehweg_rechts' => null,
+            'seitenstreifen_links' => null,
+            'seitenstreifen_rechts' => null,
+            'review' => 0,
+            'schaden' => 0,
+            'notizen' => ''
+        ]);
     }
     
 } catch (PDOException $e) {

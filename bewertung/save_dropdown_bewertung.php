@@ -30,25 +30,34 @@ if (empty($input) && !empty($_POST)) {
 }
 
 $bildId = $input['bildId'] ?? null;
-$strasse = $input['strasse'] ?? null;
+$feld = $input['feld'] ?? null;
+$wert = $input['wert'] ?? null;
 
 // Validiere Eingaben
-if ($bildId === null || $strasse === null) {
+if ($bildId === null || $feld === null || $wert === null) {
     http_response_code(400);
-    echo json_encode(['error' => 'Bild-ID und Straßenbewertung sind erforderlich']);
+    echo json_encode(['error' => 'Bild-ID, Feld und Wert sind erforderlich']);
     exit;
 }
 
-// Validiere Straßenbewertung (1-6, 0 für "noch nicht bewertet", 9 für "ausgeschlossen")
-if (!in_array($strasse, [0, 1, 2, 3, 4, 5, 6, 9])) {
+// Validiere Feldnamen
+$erlaubteFelder = ['gehweg_links', 'gehweg_rechts', 'seitenstreifen_links', 'seitenstreifen_rechts'];
+if (!in_array($feld, $erlaubteFelder)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Ungültige Straßenbewertung']);
+    echo json_encode(['error' => 'Ungültiges Feld']);
+    exit;
+}
+
+// Validiere Werte (1-6, 0 für "noch nicht bewertet", 9 für "ausgeschlossen", 10 für "nicht vorhanden", 11 für "wie straße")
+if (!in_array($wert, [0, 1, 2, 3, 4, 5, 6, 9, 10, 11])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Ungültiger Wert']);
     exit;
 }
 
 try {
     // Prüfe ob bereits eine Bewertung für dieses Bild existiert
-    $checkSql = "SELECT Id, [strasse] FROM [dbo].[bewertung] WHERE [bilder-id] = :bild_id";
+    $checkSql = "SELECT Id, [$feld] FROM [dbo].[bewertung] WHERE [bilder-id] = :bild_id";
     $checkStmt = $conn->prepare($checkSql);
     $checkStmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
     $checkStmt->execute();
@@ -57,20 +66,20 @@ try {
     
     if ($existingBewertung) {
         // Prüfe ob sich der Wert tatsächlich geändert hat
-        $oldValue = $existingBewertung['strasse'];
+        $oldValue = $existingBewertung[$feld];
         
-        if ($oldValue != $strasse) {
+        if ($oldValue != $wert) {
             // Update existierende Bewertung nur wenn sich der Wert geändert hat
             $sql = "UPDATE [dbo].[bewertung] 
-                    SET [strasse] = :strasse
+                    SET [$feld] = :wert
                     WHERE [bilder-id] = :bild_id";
             $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':strasse', (int)$strasse, PDO::PARAM_INT);
+            $stmt->bindValue(':wert', (int)$wert, PDO::PARAM_INT);
             $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
             $stmt->execute();
             
             // Log-Eintrag für Update erstellen
-            createLogEntry($conn, $bildId, 'strasse', $strasse, 'update');
+            createLogEntry($conn, $bildId, $feld, $wert, 'update');
             
             echo json_encode(['success' => true, 'action' => 'updated']);
         } else {
@@ -78,16 +87,16 @@ try {
             echo json_encode(['success' => true, 'action' => 'no_change']);
         }
     } else {
-        // Erstelle neue Bewertung mit allen Feldern
-        $sql = "INSERT INTO [dbo].[bewertung] ([bilder-id], [strasse], [gehweg_links], [gehweg_rechts], [seitenstreifen_links], [seitenstreifen_rechts], [review], [schaden], [text]) 
-                VALUES (:bild_id, :strasse, NULL, NULL, NULL, NULL, 0, 0, '')";
+        // Erstelle neue Bewertung
+        $sql = "INSERT INTO [dbo].[bewertung] ([bilder-id], [$feld]) 
+                VALUES (:bild_id, :wert)";
         $stmt = $conn->prepare($sql);
         $stmt->bindValue(':bild_id', (int)$bildId, PDO::PARAM_INT);
-        $stmt->bindValue(':strasse', (int)$strasse, PDO::PARAM_INT);
+        $stmt->bindValue(':wert', (int)$wert, PDO::PARAM_INT);
         $stmt->execute();
         
         // Log-Eintrag für neue Bewertung erstellen
-        createLogEntry($conn, $bildId, 'strasse', $strasse, 'create');
+        createLogEntry($conn, $bildId, $feld, $wert, 'create');
         
         echo json_encode(['success' => true, 'action' => 'created']);
     }

@@ -50,11 +50,21 @@ adn1app/
 - `FileName` (text): Dateiname des Bildes
 - `CreatedAt` (rowversion): rowversion
 
+
 ### Tabelle: bewertung
 - `Id` (PK, int): Eindeutige Bewertungs-ID
 - `bilder-id` (FK, int): Referenz auf bilder.Id
 - `strasse` (int): Bewertungsklasse
+- `gehweg_links` (int)
+- `gehweg_rechts` (int)
+- `seitenstreifen_links` (int)
+- `seitenstreifen_rechts` (int)
+- `review` (int)
+- `schaden` (int)
+- `text` (text)
 - `CreatedAt` (rowversion): rowversion
+
+ 
 
 ### Tabelle: log_bewertung
 - `Id` (PK, int): Eindeutige Log-ID
