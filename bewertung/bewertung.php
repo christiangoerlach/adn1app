@@ -428,77 +428,6 @@
         
         <div id="bewertung-status"></div>
         
-        <!-- Neue Bewertungsabschnitte -->
-        <div class="bewertung-abschnitte">
-            <div class="bewertung-abschnitt">
-                <h4>Gehweg Links</h4>
-                <select class="bewertung-dropdown" data-feld="gehweg_links" data-bild-id="">
-                    <option value="">Bitte wählen...</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="0">Noch nicht bewertet</option>
-                    <option value="9">Bewertung ausgeschlossen</option>
-                    <option value="10">Nicht vorhanden</option>
-                    <option value="11">Wie Straße</option>
-                </select>
-            </div>
-            
-            <div class="bewertung-abschnitt">
-                <h4>Gehweg Rechts</h4>
-                <select class="bewertung-dropdown" data-feld="gehweg_rechts" data-bild-id="">
-                    <option value="">Bitte wählen...</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="0">Noch nicht bewertet</option>
-                    <option value="9">Bewertung ausgeschlossen</option>
-                    <option value="10">Nicht vorhanden</option>
-                    <option value="11">Wie Straße</option>
-                </select>
-            </div>
-            
-            <div class="bewertung-abschnitt">
-                <h4>Seitenstreifen Links</h4>
-                <select class="bewertung-dropdown" data-feld="seitenstreifen_links" data-bild-id="">
-                    <option value="">Bitte wählen...</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="0">Noch nicht bewertet</option>
-                    <option value="9">Bewertung ausgeschlossen</option>
-                    <option value="10">Nicht vorhanden</option>
-                    <option value="11">Wie Straße</option>
-                </select>
-            </div>
-            
-            <div class="bewertung-abschnitt">
-                <h4>Seitenstreifen Rechts</h4>
-                <select class="bewertung-dropdown" data-feld="seitenstreifen_rechts" data-bild-id="">
-                    <option value="">Bitte wählen...</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="0">Noch nicht bewertet</option>
-                    <option value="9">Bewertung ausgeschlossen</option>
-                    <option value="10">Nicht vorhanden</option>
-                    <option value="11">Wie Straße</option>
-                </select>
-            </div>
-        </div>
-        
         <!-- Review und Schaden Buttons -->
         <div class="bewertung-abschnitt">
             <h4>Markierungen</h4>
@@ -514,6 +443,85 @@
             <textarea id="notizen-text" class="notizen-textarea" placeholder="Freitext-Notizen hier eingeben..." maxlength="1000"></textarea>
             <div class="zeichen-zaehler">
                 <span id="zeichen-anzahl">0</span> / 1000 Zeichen
+            </div>
+        </div>
+        
+        <!-- Gehweg/Seitenstreifen ausklappbarer Abschnitt -->
+        <div class="collapsible-section gehweg-section">
+            <h3 class="collapsible-header" data-target="gehweg-content">
+                <span class="toggle-icon">▶</span>
+                Gehweg/Seitenstreifen
+            </h3>
+            <div id="gehweg-content" class="collapsible-content collapsed">
+                <div class="bewertung-abschnitte">
+                    <div class="bewertung-abschnitt">
+                        <h4>Gehweg Links</h4>
+                        <select class="bewertung-dropdown" data-feld="gehweg_links" data-bild-id="">
+                            <option value="">Bitte wählen...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="0">Noch nicht bewertet</option>
+                            <option value="9">Bewertung ausgeschlossen</option>
+                            <option value="10">Nicht vorhanden</option>
+                            <option value="11">Wie Straße</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bewertung-abschnitt">
+                        <h4>Gehweg Rechts</h4>
+                        <select class="bewertung-dropdown" data-feld="gehweg_rechts" data-bild-id="">
+                            <option value="">Bitte wählen...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="0">Noch nicht bewertet</option>
+                            <option value="9">Bewertung ausgeschlossen</option>
+                            <option value="10">Nicht vorhanden</option>
+                            <option value="11">Wie Straße</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bewertung-abschnitt">
+                        <h4>Seitenstreifen Links</h4>
+                        <select class="bewertung-dropdown" data-feld="seitenstreifen_links" data-bild-id="">
+                            <option value="">Bitte wählen...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="0">Noch nicht bewertet</option>
+                            <option value="9">Bewertung ausgeschlossen</option>
+                            <option value="10">Nicht vorhanden</option>
+                            <option value="11">Wie Straße</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bewertung-abschnitt">
+                        <h4>Seitenstreifen Rechts</h4>
+                        <select class="bewertung-dropdown" data-feld="seitenstreifen_rechts" data-bild-id="">
+                            <option value="">Bitte wählen...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="0">Noch nicht bewertet</option>
+                            <option value="9">Bewertung ausgeschlossen</option>
+                            <option value="10">Nicht vorhanden</option>
+                            <option value="11">Wie Straße</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
         
