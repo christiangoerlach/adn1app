@@ -22,12 +22,11 @@
         
         .image-section {
             flex: 1;
-            max-width: 60%;
+            min-width: 0;
         }
         
         .bewertung-section {
-            flex: 1;
-            max-width: 40%;
+            flex: 0 0 350px;
             padding: 20px;
             background: #f5f5f5;
             border-radius: 10px;
@@ -63,10 +62,10 @@
         }
         
         .bewertung-btn {
-            padding: 15px 20px;
-            font-size: 1.1rem;
+            padding: 6px 8px;
+            font-size: 0.8rem;
             border: 2px solid #ddd;
-            border-radius: 8px;
+            border-radius: 4px;
             background: white;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -83,15 +82,25 @@
             border-color: #007bff;
         }
         
-        .bewertung-btn.nicht-bewertet {
-            background: #6c757d;
-            color: white;
-            border-color: #6c757d;
+        .bewertung-row-1 {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: space-between;
         }
         
-        .bewertung-btn.nicht-bewertet.active {
-            background: #495057;
-            border-color: #495057;
+        .bewertung-row-2 {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        
+        .bewertung-row-2 .bewertung-btn {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            text-align: center;
         }
         
         .status {
@@ -312,13 +321,18 @@
         <h3>Straßenzustandsklasse</h3>
         
         <div class="bewertung-buttons">
-            <button class="bewertung-btn" data-value="1">1</button>
-            <button class="bewertung-btn" data-value="2">2</button>
-            <button class="bewertung-btn" data-value="3">3</button>
-            <button class="bewertung-btn" data-value="4">4</button>
-            <button class="bewertung-btn" data-value="5">5</button>
-            <button class="bewertung-btn" data-value="6">6</button>
-            <button class="bewertung-btn nicht-bewertet" data-value="0">Noch nicht bewertet</button>
+            <div class="bewertung-row-1">
+                <button class="bewertung-btn" data-value="1">1</button>
+                <button class="bewertung-btn" data-value="2">2</button>
+                <button class="bewertung-btn" data-value="3">3</button>
+                <button class="bewertung-btn" data-value="4">4</button>
+                <button class="bewertung-btn" data-value="5">5</button>
+                <button class="bewertung-btn" data-value="6">6</button>
+            </div>
+            <div class="bewertung-row-2">
+                <button class="bewertung-btn" data-value="0">Noch nicht bewertet</button>
+                <button class="bewertung-btn" data-value="9">Bewertung ausgeschlossen</button>
+            </div>
         </div>
         
         <div id="bewertung-status"></div>

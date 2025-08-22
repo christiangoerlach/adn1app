@@ -39,8 +39,8 @@ if ($bildId === null || $strasse === null) {
     exit;
 }
 
-// Validiere Straßenbewertung (1-6 oder 0 für "noch nicht bewertet")
-if (!in_array($strasse, [0, 1, 2, 3, 4, 5, 6])) {
+// Validiere Straßenbewertung (1-6, 0 für "noch nicht bewertet", 9 für "ausgeschlossen")
+if (!in_array($strasse, [0, 1, 2, 3, 4, 5, 6, 9])) {
     http_response_code(400);
     echo json_encode(['error' => 'Ungültige Straßenbewertung']);
     exit;
