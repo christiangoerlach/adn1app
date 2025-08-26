@@ -271,7 +271,7 @@
             gap: 15px;
         }
         
-        .menu-icon {
+        .back-button {
             cursor: pointer;
             font-size: 1.5rem;
             color: #007bff;
@@ -279,12 +279,15 @@
             border-radius: 5px;
             transition: all 0.3s ease;
             user-select: none;
+            text-decoration: none;
+            display: inline-block;
         }
         
-        .menu-icon:hover {
+        .back-button:hover {
             background: #e3f2fd;
             color: #0056b3;
             transform: scale(1.1);
+            text-decoration: none;
         }
         
         .header-left h1 {
@@ -415,7 +418,7 @@
 
 <div class="header">
     <div class="header-left">
-        <div class="menu-icon" id="main-menu-btn" title="Hauptmenü">☰</div>
+        <a href="#" id="back-btn" class="back-button" title="Zurück">←</a>
         <h1>
             <span id="project-name">Lade Projekt...</span>: <span id="current-image-name">Lade Bild...</span>
         </h1>
@@ -976,6 +979,7 @@ function loadImages() {
     const wert = urlParams.get('wert') || '';
     const feld = urlParams.get('feld') || '';
     const abschnittId = urlParams.get('abschnittId') || '';
+    const bildId = urlParams.get('bildId') || '';
     
     // Filter-Text anzeigen
     updateFilterInfo(filter, wert);
@@ -991,6 +995,7 @@ function loadImages() {
     if (abschnittId !== '') {
         fetchUrl += '&abschnittId=' + encodeURIComponent(abschnittId);
     }
+    // bildId wird nicht an bilder.php weitergegeben, da es nur für die Navigation verwendet wird
     
     fetch(fetchUrl)
         .then(response => response.json())
@@ -1003,8 +1008,19 @@ function loadImages() {
             } else {
                 images = [];
             }
-
-            currentIndex = 0;
+            
+            // Wenn eine spezifische Bild-ID übergeben wurde, zu diesem Bild springen
+            if (bildId !== '') {
+                const targetIndex = images.findIndex(img => img.id == bildId);
+                if (targetIndex !== -1) {
+                    currentIndex = targetIndex;
+                } else {
+                    currentIndex = 0;
+                }
+            } else {
+                currentIndex = 0;
+            }
+            
             updateImage();
         })
         .catch(error => {
@@ -1045,7 +1061,10 @@ function updateFilterInfo(filter, wert) {
         
         filterText += `Straßenabschnitte - ${wertText}`;
     } else if (filter === 'abschnitt') {
-        filterText += 'Straßenabschnitt';
+        // Abschnittsname aus der URL holen oder Standard-Text verwenden
+        const urlParams = new URLSearchParams(window.location.search);
+        const abschnittName = urlParams.get('abschnittName') || 'Straßenabschnitt';
+        filterText += `Straßenabschnitt: ${abschnittName}`;
     } else {
         filterText += 'Unbekannt';
     }
@@ -1137,9 +1156,21 @@ async function initAzureMap() {
 // Event-Listener für Kartensteuerung
 document.addEventListener('DOMContentLoaded', function() {
     // Hauptmenü-Button
-    document.getElementById('main-menu-btn').addEventListener('click', function() {
-        window.location.href = '../index.php';
-    });
+    // Intelligente Rücknavigation basierend auf dem Aufrufkontext
+    const backBtn = document.getElementById('back-btn');
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter');
+    const abschnittId = urlParams.get('abschnittId');
+    
+    if (filter === 'abschnitt' && abschnittId) {
+        // Aufruf aus abschnitt-bewertung.php - zurück zu abschnitt-bewertung.php
+        backBtn.href = `abschnitt-bewertung.php?abschnittId=${abschnittId}`;
+        backBtn.title = 'Zurück zum Straßenabschnitt';
+    } else {
+        // Aufruf aus index.php oder anderer Quelle - zurück zu index.php
+        backBtn.href = '../index.php';
+        backBtn.title = 'Zurück zur Hauptseite';
+    }
     
     // Bewertungsbuttons
     document.querySelectorAll('.bewertung-btn').forEach(btn => {

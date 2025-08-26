@@ -829,9 +829,13 @@ document.getElementById('goToBewertung').addEventListener('click', function() {
         console.log('- bildId:', currentBildId);
         console.log('- currentAbschnittId:', currentAbschnittId);
         
+        // Abschnittsname für die Filter-Anzeige holen
+        const currentAbschnitt = allAbschnitte.find(abschnitt => abschnitt.Id == currentAbschnittId);
+        const abschnittName = currentAbschnitt ? encodeURIComponent(currentAbschnitt.abschnittname) : '';
+        
         // Zur Bewertungsseite mit allen Bildern des Abschnitts navigieren
         // Der bildId-Parameter bestimmt, welches Bild initial angezeigt wird
-        const url = `bewertung.php?bildId=${currentBildId}&filter=abschnitt&abschnittId=${currentAbschnittId}`;
+        const url = `bewertung.php?bildId=${currentBildId}&filter=abschnitt&abschnittId=${currentAbschnittId}&abschnittName=${abschnittName}`;
         console.log('URL:', url);
         
         window.location.href = url;

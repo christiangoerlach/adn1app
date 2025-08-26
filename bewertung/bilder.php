@@ -14,9 +14,10 @@ $projektId = $_SESSION['PROJEKT_ID'] ?? 1; // Standard-Projekt-ID 1 verwenden
 $filter = $_GET['filter'] ?? 'all';
 $wert = $_GET['wert'] ?? null;
 $abschnittId = $_GET['abschnittId'] ?? null;
+$bildId = $_GET['bildId'] ?? null;
 
 // Debug-Ausgabe (entfernen nach dem Testen)
-error_log("bilder.php - Filter: " . $filter . ", Wert: " . ($wert ?? 'null') . ", AbschnittId: " . ($abschnittId ?? 'null'));
+error_log("bilder.php - Filter: " . $filter . ", Wert: " . ($wert ?? 'null') . ", AbschnittId: " . ($abschnittId ?? 'null') . ", BildId: " . ($bildId ?? 'null'));
 
 // SQL-Abfrage basierend auf Filter aufbauen
 if ($filter === 'all') {
@@ -103,6 +104,7 @@ if ($filter === 'all') {
 $stmt->execute();
 
 $imageUrls = [];
+$rowCount = 0;
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $fileName = $row['FileName'];
@@ -110,7 +112,10 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         'id' => $row['Id'],
         'url' => $blobBaseUrl . rawurlencode($fileName)
     ];
+    $rowCount++;
 }
+
+
 
 // JSON-Ausgabe
 echo json_encode($imageUrls, JSON_UNESCAPED_SLASHES);
