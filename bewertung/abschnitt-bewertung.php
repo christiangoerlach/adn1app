@@ -216,14 +216,55 @@ if ($currentAbschnitt) {
             font-weight: 600;
         }
         
-        .summary-placeholder {
-            background: #f8f9fa;
-            border: 2px dashed #dee2e6;
+        .summary-table-container {
+            background: white;
             border-radius: 8px;
-            padding: 40px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .summary-table {
+            width: 100%;
+            min-width: 1000px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .summary-table th:first-child,
+        .summary-table td:first-child {
+            width: 100px;
+            text-align: left;
+        }
+        
+
+        
+        .summary-table th {
+            background: #e9ecef;
+            padding: 10px 8px;
             text-align: center;
-            color: #6c757d;
-            font-style: italic;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .summary-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            text-align: center;
+        }
+        
+        .summary-table td:first-child {
+            text-align: left;
+        }
+        
+        .summary-table tbody tr:hover {
+            background: #f8f9fa;
         }
         
         .bilder-table-container h2 {
@@ -244,12 +285,20 @@ if ($currentAbschnitt) {
             width: 100%;
             min-width: 1000px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
+        
+        .bilder-table th:first-child,
+        .bilder-table td:first-child {
+            width: 100px;
+        }
+        
+
         
         .bilder-table th {
             background: #f8f9fa;
             padding: 10px 8px;
-            text-align: left;
+            text-align: center;
             font-weight: 600;
             color: #495057;
             border-bottom: 2px solid #dee2e6;
@@ -261,6 +310,11 @@ if ($currentAbschnitt) {
             padding: 8px;
             border-bottom: 1px solid #dee2e6;
             font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .bilder-table td:first-child {
+            text-align: left;
         }
         
         .bilder-table tbody tr:hover {
@@ -344,8 +398,138 @@ if ($currentAbschnitt) {
 <div class="content">
     <div class="summary-section">
         <h2>Zusammenfassung</h2>
-        <div class="summary-placeholder">
-            <!-- Hier wird später eine weitere Tabelle eingefügt -->
+        <div class="summary-table-container">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Straße</th>
+                        <th>Gehweg Links</th>
+                        <th>Gehweg Rechts</th>
+                        <th>Seitenstreifen Links</th>
+                        <th>Seitenstreifen Rechts</th>
+                        <th>Review</th>
+                        <th>Schaden</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Durchschnitt</strong></td>
+                        <td><?php
+                            $strasseValues = array_filter(array_column($bilder, 'strasse'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($strasseValues) > 0 ? number_format(array_sum($strasseValues) / count($strasseValues), 2) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegLinksValues = array_filter(array_column($bilder, 'gehweg_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegLinksValues) > 0 ? number_format(array_sum($gehwegLinksValues) / count($gehwegLinksValues), 2) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegRechtsValues = array_filter(array_column($bilder, 'gehweg_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegRechtsValues) > 0 ? number_format(array_sum($gehwegRechtsValues) / count($gehwegRechtsValues), 2) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenLinksValues = array_filter(array_column($bilder, 'seitenstreifen_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenLinksValues) > 0 ? number_format(array_sum($seitenstreifenLinksValues) / count($seitenstreifenLinksValues), 2) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenRechtsValues = array_filter(array_column($bilder, 'seitenstreifen_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenRechtsValues) > 0 ? number_format(array_sum($seitenstreifenRechtsValues) / count($seitenstreifenRechtsValues), 2) : '-';
+                        ?></td>
+                        <td><?php
+                            $reviewCount = count(array_filter(array_column($bilder, 'review'), function($val) {
+                                return $val == 1;
+                            }));
+                            echo $reviewCount;
+                        ?></td>
+                        <td><?php
+                            $schadenCount = count(array_filter(array_column($bilder, 'schaden'), function($val) {
+                                return $val == 1;
+                            }));
+                            echo $schadenCount;
+                        ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Min.</strong></td>
+                        <td><?php
+                            $strasseValues = array_filter(array_column($bilder, 'strasse'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($strasseValues) > 0 ? min($strasseValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegLinksValues = array_filter(array_column($bilder, 'gehweg_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegLinksValues) > 0 ? min($gehwegLinksValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegRechtsValues = array_filter(array_column($bilder, 'gehweg_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegRechtsValues) > 0 ? min($gehwegRechtsValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenLinksValues = array_filter(array_column($bilder, 'seitenstreifen_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenLinksValues) > 0 ? min($seitenstreifenLinksValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenRechtsValues = array_filter(array_column($bilder, 'seitenstreifen_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenRechtsValues) > 0 ? min($seitenstreifenRechtsValues) : '-';
+                        ?></td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Max.</strong></td>
+                        <td><?php
+                            $strasseValues = array_filter(array_column($bilder, 'strasse'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($strasseValues) > 0 ? max($strasseValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegLinksValues = array_filter(array_column($bilder, 'gehweg_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegLinksValues) > 0 ? max($gehwegLinksValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $gehwegRechtsValues = array_filter(array_column($bilder, 'gehweg_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($gehwegRechtsValues) > 0 ? max($gehwegRechtsValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenLinksValues = array_filter(array_column($bilder, 'seitenstreifen_links'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenLinksValues) > 0 ? max($seitenstreifenLinksValues) : '-';
+                        ?></td>
+                        <td><?php
+                            $seitenstreifenRechtsValues = array_filter(array_column($bilder, 'seitenstreifen_rechts'), function($val) {
+                                return $val !== null && $val >= 1 && $val <= 6;
+                            });
+                            echo count($seitenstreifenRechtsValues) > 0 ? max($seitenstreifenRechtsValues) : '-';
+                        ?></td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     
@@ -355,7 +539,6 @@ if ($currentAbschnitt) {
             <thead>
                 <tr>
                     <th>Bild-ID</th>
-                    <th>Dateiname</th>
                     <th>Straße</th>
                     <th>Gehweg Links</th>
                     <th>Gehweg Rechts</th>
@@ -368,17 +551,16 @@ if ($currentAbschnitt) {
             <tbody id="bilder-table-body">
                 <?php if (empty($bilder)): ?>
                     <tr>
-                        <td colspan="9" class="no-data">Keine Bilder gefunden</td>
+                        <td colspan="8" class="no-data">Keine Bilder gefunden</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($bilder as $bild): ?>
                         <tr>
                             <td>
-                                <a href="bewertung.php?bildId=<?= htmlspecialchars($bild['Id']) ?>" class="bild-id-link">
+                                <a href="#" onclick="showImageModal(<?= htmlspecialchars($bild['Id']) ?>, '<?= htmlspecialchars($bild['FileName']) ?>')" class="bild-id-link">
                                     <?= htmlspecialchars($bild['Id']) ?>
                                 </a>
                             </td>
-                            <td><?= htmlspecialchars($bild['FileName']) ?></td>
                             <td><?= $bild['strasse'] !== null ? htmlspecialchars($bild['strasse']) : '-' ?></td>
                             <td><?= $bild['gehweg_links'] !== null ? htmlspecialchars($bild['gehweg_links']) : '-' ?></td>
                             <td><?= $bild['gehweg_rechts'] !== null ? htmlspecialchars($bild['gehweg_rechts']) : '-' ?></td>
@@ -394,11 +576,260 @@ if ($currentAbschnitt) {
     </div>
 </div>
 
+<!-- Bild-Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-header">
+            <h3 id="modalTitle">Bild anzeigen</h3>
+        </div>
+        <div class="modal-body">
+            <div class="modal-table-container">
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Bild-ID</th>
+                            <th>Straße</th>
+                            <th>Gehweg Links</th>
+                            <th>Gehweg Rechts</th>
+                            <th>Seitenstreifen Links</th>
+                            <th>Seitenstreifen Rechts</th>
+                            <th>Review</th>
+                            <th>Schaden</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody">
+                        <!-- Wird dynamisch gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            <img id="modalImage" src="" alt="Bild" style="max-width: 100%; max-height: 50vh; display: block; margin: 20px auto 0;">
+        </div>
+        <div class="modal-footer">
+            <button id="goToBewertung" class="btn btn-primary">Zur Bewertung</button>
+            <button class="btn btn-secondary" onclick="closeImageModal()">Schließen</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border: none;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.modal-table-container {
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin: 0 auto;
+}
+
+.modal-table th {
+    background: #f8f9fa;
+    padding: 8px 6px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.modal-table td {
+    padding: 8px 6px;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-table td:first-child {
+    text-align: left;
+    font-weight: 700;
+    color: #007bff;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #dee2e6;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    text-align: right;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+.btn {
+    padding: 8px 16px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+</style>
+
 <script>
 let bilder = <?= json_encode($bilder) ?>;
 let allAbschnitte = <?= json_encode($allAbschnitte) ?>;
 let currentAbschnittId = <?= json_encode($abschnittId) ?>;
 let currentIndex = 0;
+let currentBildId = null;
+
+// Modal-Funktionen
+function showImageModal(bildId, fileName) {
+    currentBildId = bildId;
+    const modal = document.getElementById('imageModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalImage = document.getElementById('modalImage');
+    const modalTableBody = document.getElementById('modalTableBody');
+    
+    modalTitle.textContent = `Bild ${bildId}: ${fileName}`;
+    
+    // Bewertungsdaten für das Bild finden
+    const bildData = bilder.find(bild => bild.Id == bildId);
+    
+    // Tabelle mit Bewertungsdaten füllen
+    if (bildData) {
+        modalTableBody.innerHTML = `
+            <tr>
+                <td>${bildData.Id}</td>
+                <td>${bildData.strasse !== null ? bildData.strasse : '-'}</td>
+                <td>${bildData.gehweg_links !== null ? bildData.gehweg_links : '-'}</td>
+                <td>${bildData.gehweg_rechts !== null ? bildData.gehweg_rechts : '-'}</td>
+                <td>${bildData.seitenstreifen_links !== null ? bildData.seitenstreifen_links : '-'}</td>
+                <td>${bildData.seitenstreifen_rechts !== null ? bildData.seitenstreifen_rechts : '-'}</td>
+                <td>${bildData.review == 1 ? 'Ja' : 'Nein'}</td>
+                <td>${bildData.schaden == 1 ? 'Ja' : 'Nein'}</td>
+            </tr>
+        `;
+    } else {
+        modalTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; color: #999;">Keine Bewertungsdaten gefunden</td>
+            </tr>
+        `;
+    }
+    
+    // Bild-URL genauso generieren wie in bilder.php
+    const blobBaseUrl = '<?= $_ENV['BLOB_BASE_URL'] ?? '' ?>';
+    const containerName = '<?= $_SESSION['AZURE_STORAGE_CONTAINER_NAME'] ?? '' ?>';
+    const imageUrl = blobBaseUrl + containerName + '/' + encodeURIComponent(fileName);
+    
+    console.log('Loading image:', imageUrl); // Debug-Ausgabe
+    
+    modalImage.src = imageUrl;
+    modalImage.onerror = function() {
+        console.error('Failed to load image:', imageUrl);
+        modalImage.alt = 'Bild konnte nicht geladen werden';
+        modalImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkJpbGQgY29udXRlIG5pY2h0IGdlbGFkZW4gd2VyZGVuPC90ZXh0Pjwvc3ZnPg==';
+    };
+    
+    modal.style.display = 'block';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    currentBildId = null;
+}
+
+// Modal schließen bei Klick außerhalb
+window.onclick = function(event) {
+    const modal = document.getElementById('imageModal');
+    if (event.target == modal) {
+        closeImageModal();
+    }
+}
+
+// Modal schließen bei ESC-Taste
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Zur Bewertung Button
+document.getElementById('goToBewertung').addEventListener('click', function() {
+    if (currentBildId) {
+        window.location.href = `bewertung.php?bildId=${currentBildId}`;
+    }
+});
+
+// Close Button
+document.querySelector('.close').addEventListener('click', closeImageModal);
 
 // Aktuellen Abschnittsindex finden
 let currentAbschnittIndex = -1;
