@@ -55,6 +55,7 @@ adn1app/
 - `Id` (PK, int): Eindeutige Abschnitts-ID
 - `projects-id` (FK, int): Referenz auf projects.Id
 - `AbschnittName` (text): Name des Straßenabschnittes
+- `Strasse` (int): Bewertung der Straße im Straßenabschnitt
 - `CreatedAt` (rowversion): rowversion
 
 
