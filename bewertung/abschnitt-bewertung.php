@@ -81,14 +81,18 @@ try {
     error_log('Fehler beim Laden der Abschnitte: ' . $e->getMessage());
 }
 
-// Bilder für den aktuellen Abschnitt laden
+// Bilder mit Bewertungsdaten für den aktuellen Abschnitt laden
 $bilder = [];
 if ($currentAbschnitt) {
     try {
-        $sql = "SELECT [Id], [FileName] 
-                FROM [dbo].[bilder] 
-                WHERE [projects-id] = ? AND [abschnitte-id] = ?
-                ORDER BY [Id]";
+        $sql = "SELECT b.[Id], b.[FileName], 
+                       bew.[strasse], bew.[gehweg_links], bew.[gehweg_rechts], 
+                       bew.[seitenstreifen_links], bew.[seitenstreifen_rechts],
+                       bew.[review], bew.[schaden]
+                FROM [dbo].[bilder] b
+                LEFT JOIN [dbo].[bewertung] bew ON b.[Id] = bew.[bilder-id]
+                WHERE b.[projects-id] = ? AND b.[abschnitte-id] = ?
+                ORDER BY b.[Id]";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([$_SESSION['PROJEKT_ID'], $currentAbschnitt['Id']]);
@@ -201,54 +205,77 @@ if ($currentAbschnitt) {
             margin: 0 auto;
         }
         
-        .abschnitt-info {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .summary-section {
+            margin-bottom: 30px;
         }
         
-        .abschnitt-info h2 {
-            margin: 0 0 10px 0;
+        .summary-section h2 {
             color: #333;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
-        .abschnitt-info p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9rem;
+        .summary-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .bilder-table-container h2 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
         
         .bilder-table-container {
             background: white;
             border-radius: 8px;
-            overflow: hidden;
+            overflow-x: auto;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .bilder-table {
             width: 100%;
+            min-width: 1000px;
             border-collapse: collapse;
         }
         
         .bilder-table th {
             background: #f8f9fa;
-            padding: 15px;
+            padding: 10px 8px;
             text-align: left;
             font-weight: 600;
             color: #495057;
             border-bottom: 2px solid #dee2e6;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
         
         .bilder-table td {
-            padding: 12px 15px;
+            padding: 8px;
             border-bottom: 1px solid #dee2e6;
+            font-size: 0.85rem;
         }
         
         .bilder-table tbody tr:hover {
             background: #f8f9fa;
+        }
+        
+        .bild-id-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .bild-id-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
         }
         
         .bilder-table tbody tr:last-child td {
@@ -300,7 +327,7 @@ if ($currentAbschnitt) {
 <div class="header">
     <div class="header-left">
         <a href="../index.php" class="back-button" title="Zurück zur Hauptseite">←</a>
-        <h1><?= htmlspecialchars($projektname) ?>: <?= htmlspecialchars($abschnittsname) ?></h1>
+                        <h1><?= htmlspecialchars($projektname) ?>: <?= htmlspecialchars($abschnittsname) ?> (Anzahl der Bilder: <?= count($bilder) ?>)</h1>
     </div>
     <div class="header-center">
         <div class="nav-buttons">
@@ -315,36 +342,50 @@ if ($currentAbschnitt) {
 </div>
 
 <div class="content">
-    <div class="abschnitt-info">
-        <p><strong>Projekt:</strong> <?= htmlspecialchars($projektname) ?></p>
-        <p><strong>Abschnitt:</strong> <?= htmlspecialchars($abschnittsname) ?></p>
-        <p><strong>Anzahl Bilder:</strong> <?= count($bilder) ?></p>
+    <div class="summary-section">
+        <h2>Zusammenfassung</h2>
+        <div class="summary-placeholder">
+            <!-- Hier wird später eine weitere Tabelle eingefügt -->
+        </div>
     </div>
     
     <div class="bilder-table-container">
+        <h2>Einzelbilder</h2>
         <table class="bilder-table">
             <thead>
                 <tr>
                     <th>Bild-ID</th>
                     <th>Dateiname</th>
-                    <th>Aktion</th>
+                    <th>Straße</th>
+                    <th>Gehweg Links</th>
+                    <th>Gehweg Rechts</th>
+                    <th>Seitenstreifen Links</th>
+                    <th>Seitenstreifen Rechts</th>
+                    <th>Review</th>
+                    <th>Schaden</th>
                 </tr>
             </thead>
             <tbody id="bilder-table-body">
                 <?php if (empty($bilder)): ?>
                     <tr>
-                        <td colspan="3" class="no-data">Keine Bilder gefunden</td>
+                        <td colspan="9" class="no-data">Keine Bilder gefunden</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($bilder as $bild): ?>
                         <tr>
-                            <td><?= htmlspecialchars($bild['Id']) ?></td>
-                            <td><?= htmlspecialchars($bild['FileName']) ?></td>
                             <td>
-                                <a href="bewertung.php?bildId=<?= htmlspecialchars($bild['Id']) ?>" class="bild-link">
-                                    Zur Bewertung
+                                <a href="bewertung.php?bildId=<?= htmlspecialchars($bild['Id']) ?>" class="bild-id-link">
+                                    <?= htmlspecialchars($bild['Id']) ?>
                                 </a>
                             </td>
+                            <td><?= htmlspecialchars($bild['FileName']) ?></td>
+                            <td><?= $bild['strasse'] !== null ? htmlspecialchars($bild['strasse']) : '-' ?></td>
+                            <td><?= $bild['gehweg_links'] !== null ? htmlspecialchars($bild['gehweg_links']) : '-' ?></td>
+                            <td><?= $bild['gehweg_rechts'] !== null ? htmlspecialchars($bild['gehweg_rechts']) : '-' ?></td>
+                            <td><?= $bild['seitenstreifen_links'] !== null ? htmlspecialchars($bild['seitenstreifen_links']) : '-' ?></td>
+                            <td><?= $bild['seitenstreifen_rechts'] !== null ? htmlspecialchars($bild['seitenstreifen_rechts']) : '-' ?></td>
+                            <td><?= $bild['review'] == 1 ? 'Ja' : 'Nein' ?></td>
+                            <td><?= $bild['schaden'] == 1 ? 'Ja' : 'Nein' ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
