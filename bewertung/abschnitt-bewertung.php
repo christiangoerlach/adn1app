@@ -824,7 +824,17 @@ document.addEventListener('keydown', function(event) {
 // Zur Bewertung Button
 document.getElementById('goToBewertung').addEventListener('click', function() {
     if (currentBildId) {
-        window.location.href = `bewertung.php?bildId=${currentBildId}`;
+        // Debug-Ausgabe
+        console.log('Navigating to bewertung.php with:');
+        console.log('- bildId:', currentBildId);
+        console.log('- currentAbschnittId:', currentAbschnittId);
+        
+        // Zur Bewertungsseite mit allen Bildern des Abschnitts navigieren
+        // Der bildId-Parameter bestimmt, welches Bild initial angezeigt wird
+        const url = `bewertung.php?bildId=${currentBildId}&filter=abschnitt&abschnittId=${currentAbschnittId}`;
+        console.log('URL:', url);
+        
+        window.location.href = url;
     }
 });
 

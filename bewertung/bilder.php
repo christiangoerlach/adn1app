@@ -13,6 +13,10 @@ $projektId = $_SESSION['PROJEKT_ID'] ?? 1; // Standard-Projekt-ID 1 verwenden
 // Filter-Parameter aus URL holen
 $filter = $_GET['filter'] ?? 'all';
 $wert = $_GET['wert'] ?? null;
+$abschnittId = $_GET['abschnittId'] ?? null;
+
+// Debug-Ausgabe (entfernen nach dem Testen)
+error_log("bilder.php - Filter: " . $filter . ", Wert: " . ($wert ?? 'null') . ", AbschnittId: " . ($abschnittId ?? 'null'));
 
 // SQL-Abfrage basierend auf Filter aufbauen
 if ($filter === 'all') {
@@ -44,6 +48,16 @@ if ($filter === 'all') {
             ORDER BY b.[Id]";
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
+    
+} elseif ($filter === 'abschnitt' && $abschnittId !== null) {
+    // Alle Bilder eines bestimmten Abschnitts
+    $sql = "SELECT [Id], [FileName] 
+            FROM [dbo].[bilder]
+            WHERE [projects-id] = :projekt_id AND [abschnitte-id] = :abschnitt_id
+            ORDER BY [Id]";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
+    $stmt->bindValue(':abschnitt_id', (int)$abschnittId, PDO::PARAM_INT);
     
 } elseif ($filter === 'straßenabschnitte' && $wert !== null) {
     // Bilder mit bestimmter Straßenabschnitte-Bewertung (alle Felder)

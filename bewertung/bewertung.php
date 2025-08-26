@@ -975,6 +975,7 @@ function loadImages() {
     const filter = urlParams.get('filter') || 'all';
     const wert = urlParams.get('wert') || '';
     const feld = urlParams.get('feld') || '';
+    const abschnittId = urlParams.get('abschnittId') || '';
     
     // Filter-Text anzeigen
     updateFilterInfo(filter, wert);
@@ -986,6 +987,9 @@ function loadImages() {
     }
     if (feld !== '') {
         fetchUrl += '&feld=' + encodeURIComponent(feld);
+    }
+    if (abschnittId !== '') {
+        fetchUrl += '&abschnittId=' + encodeURIComponent(abschnittId);
     }
     
     fetch(fetchUrl)
@@ -1040,6 +1044,8 @@ function updateFilterInfo(filter, wert) {
         }
         
         filterText += `Straßenabschnitte - ${wertText}`;
+    } else if (filter === 'abschnitt') {
+        filterText += 'Straßenabschnitt';
     } else {
         filterText += 'Unbekannt';
     }
