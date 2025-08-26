@@ -47,8 +47,16 @@ adn1app/
 ### Tabelle: bilder
 - `Id` (PK, int): Eindeutige Bild-ID
 - `projects-id` (FK, int): Referenz auf projects.Id
+- `abschnitte-id` (int): Referenz auf abschnitte.Id
 - `FileName` (text): Dateiname des Bildes
 - `CreatedAt` (rowversion): rowversion
+
+### Tabelle: abschnitte
+- `Id` (PK, int): Eindeutige Abschnitts-ID
+- `projects-id` (FK, int): Referenz auf projects.Id
+- `AbschnittName` (text): Name des Straßenabschnittes
+- `CreatedAt` (rowversion): rowversion
+
 
 
 ### Tabelle: bewertung
@@ -76,12 +84,19 @@ adn1app/
 - `Zeitstempel` (datetime2(7)): Erstellungs- / Änderungsdatum
 
 
+
+
 ### Datenbankbeziehungen
 - `bilder` belongsTo `projects` via `projects-id`
 - `projects` hasMany `bilder` via `projects-id`
+
 - `bewertung` belongsTo `bilder` via `bilder-id`
 - `log_bewertung` belongsTo `bewertung` via `bilder-id`
 - `bewertung` hasMany `log_bewertung` via `bilder-id`
+
+- `abschnitte` belongsTo `projects` via `projects-id`
+- `projects` hasMany `abschnitte` via `projects-id`
+- `abschnitte` belongsTo `bilder` via `abschnitte-id`
 
 ## Session-Management
 - `PROJEKT_ID`: Aktuell ausgewähltes Projekt

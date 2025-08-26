@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "Punkt_0_8050",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.823590463338796, 50.59589077186849 ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.82374884497472, 50.595880716319009 ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.823910217010253, 50.595902133106286 ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.823983874586057, 50.59592265335413 ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.824347241675165, 50.596038328202056 ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8050", "GGArtbez": "Verm. Straßenachspunkte", "GGArtummer": 8050 }, "geometry": { "type": "Point", "coordinates": [ 8.825043566107279, 50.596281991357486 ] } }
+]
+}

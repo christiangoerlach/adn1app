@@ -45,6 +45,37 @@ if ($filter === 'all') {
     $stmt = $conn->prepare($sql);
     $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
     
+} elseif ($filter === 'straßenabschnitte' && $wert !== null) {
+    // Bilder mit bestimmter Straßenabschnitte-Bewertung (alle Felder)
+    $sql = "SELECT b.[Id], b.[FileName] 
+            FROM [dbo].[bilder] b
+            INNER JOIN [dbo].[bewertung] bew ON b.[Id] = bew.[bilder-id]
+            WHERE b.[projects-id] = :projekt_id 
+            AND (bew.[gehweg_links] = :wert OR bew.[gehweg_rechts] = :wert 
+                 OR bew.[seitenstreifen_links] = :wert OR bew.[seitenstreifen_rechts] = :wert)
+            ORDER BY b.[Id]";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
+    $stmt->bindValue(':wert', (int)$wert, PDO::PARAM_INT);
+    
+} elseif ($filter === 'zugeordnet') {
+    // Bilder mit abschnitte-id <> NULL (zugeordnet)
+    $sql = "SELECT [Id], [FileName] 
+            FROM [dbo].[bilder]
+            WHERE [projects-id] = :projekt_id AND [abschnitte-id] IS NOT NULL
+            ORDER BY [Id]";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
+    
+} elseif ($filter === 'nicht_zugeordnet') {
+    // Bilder mit abschnitte-id = NULL (nicht zugeordnet)
+    $sql = "SELECT [Id], [FileName] 
+            FROM [dbo].[bilder]
+            WHERE [projects-id] = :projekt_id AND [abschnitte-id] IS NULL
+            ORDER BY [Id]";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
+    
 } else {
     // Fallback: alle Bilder
     $sql = "SELECT [Id], [FileName] 

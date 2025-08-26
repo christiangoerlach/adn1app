@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"name": "Linie_0_8360",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.846973013703602, 50.616689198961147 ], [ 8.847687743608644, 50.616738005222082 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.814401393579889, 50.576829089401244 ], [ 8.814410460025259, 50.576827493495017 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.827720568247111, 50.595183282739441 ], [ 8.827810604667917, 50.595222911776631 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.882148821660309, 50.596060140459485 ], [ 8.882197038764467, 50.596002466930869 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.85786575908206, 50.597245408926639 ], [ 8.857869413645943, 50.597244337941831 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.823584909888552, 50.576730063409265 ], [ 8.823594640286293, 50.576728989988347 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.832901134407772, 50.59682480882875 ], [ 8.832897667956889, 50.596829670756499 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.832780393015064, 50.596943785279556 ], [ 8.832745239154329, 50.596976072456798 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.857520248525379, 50.598687780750844 ], [ 8.85751738166233, 50.598669826782491 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.847687743608644, 50.616738005222082 ], [ 8.848432545384522, 50.616791641135613 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.846600604581651, 50.616665143926191 ], [ 8.846973013703602, 50.616689198961147 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.853180459377365, 50.617012470561541 ], [ 8.853181492995557, 50.617021542559073 ] ] } },
+{ "type": "Feature", "properties": { "OSKA": "8360.8360", "GGArtbez": "Straßenabschnitt", "GGArtummer": 8360 }, "geometry": { "type": "LineString", "coordinates": [ [ 8.848432545384522, 50.616791641135613 ], [ 8.848718645928873, 50.616811039872296 ] ] } }
+]
+}

@@ -598,6 +598,18 @@
                 </div>
             </div>
         </div>
+        
+        <div class="collapsible-section abschnitt-section">
+            <h3 class="collapsible-header" data-target="abschnitt-content">
+                <span class="toggle-icon">▶</span>
+                Straßenabschnitt
+            </h3>
+            <div id="abschnitt-content" class="collapsible-content collapsed">
+                <div id="abschnitt-info" style="padding: 12px; background: white; border-radius: 4px; border: 1px solid #ddd; font-size: 0.8rem; color: #333;">
+                    Lade Abschnittsinformationen...
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -682,6 +694,9 @@ function loadBewertung(bildId) {
     
     // Log-Daten für das aktuelle Bild laden
     loadLogData(bildId);
+    
+    // Abschnittsinformationen laden
+    loadAbschnittInfo(bildId);
 }
 
 // Bewertungsbuttons aktualisieren
@@ -959,6 +974,7 @@ function loadImages() {
     const urlParams = new URLSearchParams(window.location.search);
     const filter = urlParams.get('filter') || 'all';
     const wert = urlParams.get('wert') || '';
+    const feld = urlParams.get('feld') || '';
     
     // Filter-Text anzeigen
     updateFilterInfo(filter, wert);
@@ -967,6 +983,9 @@ function loadImages() {
     let fetchUrl = 'bilder.php?filter=' + encodeURIComponent(filter);
     if (wert !== '') {
         fetchUrl += '&wert=' + encodeURIComponent(wert);
+    }
+    if (feld !== '') {
+        fetchUrl += '&feld=' + encodeURIComponent(feld);
     }
     
     fetch(fetchUrl)
@@ -1002,6 +1021,25 @@ function updateFilterInfo(filter, wert) {
         filterText += `Zustand ${wert}`;
     } else if (filter === 'nicht_bewertet') {
         filterText += 'Nicht bewertet';
+    } else if (filter === 'zugeordnet') {
+        filterText += 'Zugeordnet';
+    } else if (filter === 'nicht_zugeordnet') {
+        filterText += 'Nicht zugeordnet';
+    } else if (filter === 'straßenabschnitte') {
+        let wertText = '';
+        if (wert >= 1 && wert <= 6) {
+            wertText = `Zustand ${wert}`;
+        } else if (wert === 0) {
+            wertText = 'Nicht bewertet';
+        } else if (wert === 9) {
+            wertText = 'Ausgeschlossen';
+        } else if (wert === 10) {
+            wertText = 'Nicht vorhanden';
+        } else if (wert === 11) {
+            wertText = 'Wie Straße';
+        }
+        
+        filterText += `Straßenabschnitte - ${wertText}`;
     } else {
         filterText += 'Unbekannt';
     }
@@ -1295,6 +1333,29 @@ async function loadUserInfo() {
     } catch (error) {
         console.error('Fehler beim Laden der Benutzerinformationen:', error);
         document.getElementById('current-user').textContent = 'Gast';
+    }
+}
+
+// Abschnittsinformationen laden
+async function loadAbschnittInfo(bildId) {
+    try {
+        const response = await fetch(`get_abschnitt_info.php?bildId=${bildId}`);
+        const data = await response.json();
+        
+        const abschnittInfo = document.getElementById('abschnitt-info');
+        if (abschnittInfo) {
+            if (data.abschnittname) {
+                abschnittInfo.textContent = data.abschnittname;
+            } else {
+                abschnittInfo.textContent = 'Nicht zugeordnet';
+            }
+        }
+    } catch (error) {
+        console.error('Fehler beim Laden der Abschnittsinformationen:', error);
+        const abschnittInfo = document.getElementById('abschnitt-info');
+        if (abschnittInfo) {
+            abschnittInfo.textContent = 'Fehler beim Laden';
+        }
     }
 }
 </script>
