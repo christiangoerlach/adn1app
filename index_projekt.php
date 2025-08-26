@@ -56,7 +56,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
         $statistics['nicht_bewertet'] = $stmt->fetchColumn();
         
         // Statistiken für Straßenabschnitte (aus dbo.abschnitte)
-        // Gesamtzahl der Abschnitte für das Projekt
+        // Gesamtzahl der Abschnitte für das Projekt und erste ID für Link
         $stmt = $conn->prepare("
             SELECT COUNT(*) 
             FROM [dbo].[abschnitte] 
@@ -65,7 +65,18 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
         $stmt->execute([$_SESSION['PROJEKT_ID']]);
         $statistics['straßenabschnitte']['gesamt'] = $stmt->fetchColumn();
         
-        // Anzahl der Abschnitte pro Bewertungsklasse (strasse)
+        // Erste Abschnitts-ID für "Gesamtzahl" Link ermitteln
+        $stmt = $conn->prepare("
+            SELECT [Id] 
+            FROM [dbo].[abschnitte] 
+            WHERE [projects-id] = ?
+            ORDER BY [Id]
+        ");
+        $stmt->execute([$_SESSION['PROJEKT_ID']]);
+        $firstId = $stmt->fetchColumn();
+        $statistics['straßenabschnitte']['gesamt_first_id'] = $firstId ?: null;
+        
+        // Anzahl der Abschnitte pro Bewertungsklasse (strasse) und erste ID für Links
         for ($i = 1; $i <= 6; $i++) {
             $stmt = $conn->prepare("
                 SELECT COUNT(*) 
@@ -74,9 +85,20 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
             ");
             $stmt->execute([$_SESSION['PROJEKT_ID'], $i]);
             $statistics['straßenabschnitte']['zustand_' . $i] = $stmt->fetchColumn();
+            
+            // Erste Abschnitts-ID für Link ermitteln
+            $stmt = $conn->prepare("
+                SELECT [Id] 
+                FROM [dbo].[abschnitte] 
+                WHERE [projects-id] = ? AND [strasse] = ?
+                ORDER BY [Id]
+            ");
+            $stmt->execute([$_SESSION['PROJEKT_ID'], $i]);
+            $firstId = $stmt->fetchColumn();
+            $statistics['straßenabschnitte']['zustand_' . $i . '_first_id'] = $firstId ?: null;
         }
         
-        // Anzahl der nicht bewerteten Abschnitte (strasse = NULL)
+        // Anzahl der nicht bewerteten Abschnitte (strasse = NULL) und erste ID für Link
         $stmt = $conn->prepare("
             SELECT COUNT(*) 
             FROM [dbo].[abschnitte] 
@@ -84,6 +106,17 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
         ");
         $stmt->execute([$_SESSION['PROJEKT_ID']]);
         $statistics['straßenabschnitte']['nicht_bewertet'] = $stmt->fetchColumn();
+        
+        // Erste Abschnitts-ID für "Nicht bewertet" Link ermitteln
+        $stmt = $conn->prepare("
+            SELECT [Id] 
+            FROM [dbo].[abschnitte] 
+            WHERE [projects-id] = ? AND [strasse] IS NULL
+            ORDER BY [Id]
+        ");
+        $stmt->execute([$_SESSION['PROJEKT_ID']]);
+        $firstId = $stmt->fetchColumn();
+        $statistics['straßenabschnitte']['nicht_bewertet_first_id'] = $firstId ?: null;
         
         // Netzknoten-Zuordnung Statistiken
         // Anzahl der Bilder mit abschnitte-id = NULL (nicht zugeordnet)
@@ -291,8 +324,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $gesamtAbschnitte = $statistics['straßenabschnitte']['gesamt'] ?? 0;
                                 ?>
-                                <?php if ($gesamtAbschnitte > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=all" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($gesamtAbschnitte) ?></a>
+                                <?php if ($gesamtAbschnitte > 0 && $statistics['straßenabschnitte']['gesamt_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['gesamt_first_id']) ?>" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($gesamtAbschnitte) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($gesamtAbschnitte) ?>
                                 <?php endif; ?>
@@ -304,8 +337,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_1'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=1" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_1_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_1_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -317,8 +350,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_2'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=2" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_2_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_2_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -330,8 +363,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_3'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=3" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_3_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_3_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -343,8 +376,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_4'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=4" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_4_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_4_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -356,8 +389,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_5'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=5" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_5_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_5_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -369,8 +402,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['zustand_6'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=6" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_6_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_6_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
@@ -382,8 +415,8 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 <?php 
                                 $count = $statistics['straßenabschnitte']['nicht_bewertet'] ?? 0;
                                 ?>
-                                <?php if ($count > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=straßenabschnitte&wert=0" style="color: #6c757d; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
+                                <?php if ($count > 0 && $statistics['straßenabschnitte']['nicht_bewertet_first_id']): ?>
+                                    <a href="bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['nicht_bewertet_first_id']) ?>" style="color: #6c757d; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($count) ?>
                                 <?php endif; ?>
