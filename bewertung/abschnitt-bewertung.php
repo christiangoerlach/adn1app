@@ -1166,145 +1166,148 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 // Initial update
 updateCounter();
 
-        // Event-Listener für Dropdown-Änderungen
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdowns = document.querySelectorAll('.bewertung-dropdown');
+// Event-Listener für Dropdown-Änderungen
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.bewertung-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const field = this.getAttribute('data-field');
+            const value = this.value;
             
-            dropdowns.forEach(dropdown => {
-                dropdown.addEventListener('change', function() {
-                    const field = this.getAttribute('data-field');
-                    const value = this.value;
-                    
-                    // Speichern in der Datenbank
-                    saveAbschnittBewertung(field, value);
-                });
-            });
-            
-            // Auto-Save für Notizen initialisieren
-            setupNotizenAutoSave();
+            // Speichern in der Datenbank
+            saveAbschnittBewertung(field, value);
         });
+    });
+    
+    // Auto-Save für Notizen initialisieren
+    setupNotizenAutoSave();
+});
 
-        // Funktion zum Speichern der Abschnittsbewertung
-        function saveAbschnittBewertung(field, value) {
-            const abschnittId = <?= json_encode($abschnittId) ?>;
-            
-            fetch('save_abschnitt_bewertung.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `abschnittId=${abschnittId}&field=${field}&value=${value}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Bewertung erfolgreich gespeichert');
-                    // Log-Daten neu laden
-                    loadLogData();
-                } else {
-                    console.error('Fehler beim Speichern:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Fehler beim Speichern:', error);
-            });
+// Funktion zum Speichern der Abschnittsbewertung
+function saveAbschnittBewertung(field, value) {
+    // Verwende die aktuelle abschnittId aus der JavaScript-Variable
+    const abschnittId = currentAbschnittId;
+    
+    fetch('save_abschnitt_bewertung.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `abschnittId=${abschnittId}&field=${field}&value=${value}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Bewertung erfolgreich gespeichert');
+            // Log-Daten neu laden
+            loadLogData();
+        } else {
+            console.error('Fehler beim Speichern:', data.error);
         }
-        
-        // Funktion zum Ein-/Ausklappen des Log-Bereichs
-        function toggleLogSection() {
-            const content = document.getElementById('log-content');
-            const icon = document.querySelector('.toggle-icon');
-            
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                icon.textContent = '▼';
-                loadLogData(); // Daten laden beim Öffnen
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern:', error);
+    });
+}
+
+// Funktion zum Ein-/Ausklappen des Log-Bereichs
+function toggleLogSection() {
+    const content = document.getElementById('log-content');
+    const icon = document.querySelector('.toggle-icon');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.textContent = '▼';
+        loadLogData(); // Daten laden beim Öffnen
+    } else {
+        content.style.display = 'none';
+        icon.textContent = '▶';
+    }
+}
+
+// Funktion zum Laden der Log-Daten
+function loadLogData() {
+    // Verwende die aktuelle abschnittId aus der JavaScript-Variable
+    const abschnittId = currentAbschnittId;
+    
+    fetch(`get_log_abschnitt_data.php?abschnittId=${abschnittId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayLogData(data.logs);
             } else {
-                content.style.display = 'none';
-                icon.textContent = '▶';
+                console.error('Fehler beim Laden der Log-Daten:', data.error);
             }
+        })
+        .catch(error => {
+            console.error('Fehler beim Laden der Log-Daten:', error);
+        });
+}
+
+// Funktion zum Anzeigen der Log-Daten
+function displayLogData(logs) {
+    const tbody = document.getElementById('log-table-body');
+    tbody.innerHTML = '';
+    
+    if (logs.length === 0) {
+        const row = tbody.insertRow();
+        const cell = row.insertCell(0);
+        cell.colSpan = 4;
+        cell.textContent = 'Keine Log-Einträge gefunden';
+        cell.className = 'no-data';
+        return;
+    }
+    
+    logs.forEach(log => {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = log.Zeitstempel || log.zeitstempel;
+        row.insertCell(1).textContent = log.Feld || log.feld;
+        row.insertCell(2).textContent = log.Wert || log.wert;
+        row.insertCell(3).textContent = log.Nutzer || log.nutzer;
+    });
+}
+
+// Auto-Save für Notizen
+let notizenTimeout;
+
+function setupNotizenAutoSave() {
+    const textarea = document.getElementById('abschnitt-notizen');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            clearTimeout(notizenTimeout);
+            notizenTimeout = setTimeout(() => {
+                saveAbschnittNotizen(this.value);
+            }, 1000); // 1 Sekunde Verzögerung
+        });
+    }
+}
+
+// Funktion zum Speichern der Notizen
+function saveAbschnittNotizen(text) {
+    // Verwende die aktuelle abschnittId aus der JavaScript-Variable
+    const abschnittId = currentAbschnittId;
+    
+    fetch('save_abschnitt_bewertung.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `abschnittId=${abschnittId}&field=text&value=${encodeURIComponent(text)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Notizen erfolgreich gespeichert');
+            loadLogData(); // Log-Daten neu laden
+        } else {
+            console.error('Fehler beim Speichern der Notizen:', data.error);
         }
-        
-        // Funktion zum Laden der Log-Daten
-        function loadLogData() {
-            const abschnittId = <?= json_encode($abschnittId) ?>;
-            
-            fetch(`get_log_abschnitt_data.php?abschnittId=${abschnittId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayLogData(data.logs);
-                    } else {
-                        console.error('Fehler beim Laden der Log-Daten:', data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Fehler beim Laden der Log-Daten:', error);
-                });
-        }
-        
-        // Funktion zum Anzeigen der Log-Daten
-        function displayLogData(logs) {
-            const tbody = document.getElementById('log-table-body');
-            tbody.innerHTML = '';
-            
-            if (logs.length === 0) {
-                const row = tbody.insertRow();
-                const cell = row.insertCell(0);
-                cell.colSpan = 4;
-                cell.textContent = 'Keine Log-Einträge gefunden';
-                cell.className = 'no-data';
-                return;
-            }
-            
-            logs.forEach(log => {
-                const row = tbody.insertRow();
-                row.insertCell(0).textContent = log.Zeitstempel || log.zeitstempel;
-                row.insertCell(1).textContent = log.Feld || log.feld;
-                row.insertCell(2).textContent = log.Wert || log.wert;
-                row.insertCell(3).textContent = log.Nutzer || log.nutzer;
-            });
-        }
-        
-        // Auto-Save für Notizen
-        let notizenTimeout;
-        
-        function setupNotizenAutoSave() {
-            const textarea = document.getElementById('abschnitt-notizen');
-            if (textarea) {
-                textarea.addEventListener('input', function() {
-                    clearTimeout(notizenTimeout);
-                    notizenTimeout = setTimeout(() => {
-                        saveAbschnittNotizen(this.value);
-                    }, 1000); // 1 Sekunde Verzögerung
-                });
-            }
-        }
-        
-        // Funktion zum Speichern der Notizen
-        function saveAbschnittNotizen(text) {
-            const abschnittId = <?= json_encode($abschnittId) ?>;
-            
-            fetch('save_abschnitt_bewertung.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `abschnittId=${abschnittId}&field=text&value=${encodeURIComponent(text)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Notizen erfolgreich gespeichert');
-                    loadLogData(); // Log-Daten neu laden
-                } else {
-                    console.error('Fehler beim Speichern der Notizen:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Fehler beim Speichern der Notizen:', error);
-            });
-        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern der Notizen:', error);
+    });
+}
 </script>
 
 </body>

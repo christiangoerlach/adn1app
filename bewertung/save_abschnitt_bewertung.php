@@ -66,10 +66,36 @@ try {
         $stmt = $conn->prepare($sql);
         $stmt->execute([$value, $abschnittId]);
     } else {
-        // INSERT
-        $sql = "INSERT INTO [dbo].[abschnitte_bewertung] ([abschnitte-id], [$field]) VALUES (?, ?)";
+        // INSERT - Alle erforderlichen Felder mit Standardwerten setzen
+        $sql = "INSERT INTO [dbo].[abschnitte_bewertung] ([abschnitte-id], [strasse], [gehweg_links], [gehweg_rechts], [seitenstreifen_links], [seitenstreifen_rechts], [review], [schaden], [text]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$abschnittId, $value]);
+        
+        // Standardwerte für alle Felder setzen, nur das aktuelle Feld mit dem echten Wert
+        $defaultValues = [
+            'strasse' => 0,
+            'gehweg_links' => 0,
+            'gehweg_rechts' => 0,
+            'seitenstreifen_links' => 0,
+            'seitenstreifen_rechts' => 0,
+            'review' => 0,
+            'schaden' => 0,
+            'text' => ''
+        ];
+        
+        // Den aktuellen Wert für das geänderte Feld setzen
+        $defaultValues[$field] = $value;
+        
+        $stmt->execute([
+            $abschnittId,
+            $defaultValues['strasse'],
+            $defaultValues['gehweg_links'],
+            $defaultValues['gehweg_rechts'],
+            $defaultValues['seitenstreifen_links'],
+            $defaultValues['seitenstreifen_rechts'],
+            $defaultValues['review'],
+            $defaultValues['schaden'],
+            $defaultValues['text']
+        ]);
     }
     
     // Log-Eintrag erstellen
@@ -102,9 +128,13 @@ function createLogEntry($conn, $abschnittId, $field, $value) {
         $dateTime = new DateTime('now', new DateTimeZone('Europe/Berlin'));
         $createdAt = $dateTime->format('Y-m-d H:i:s');
         
+        // Für Text-Felder: Wert auf -1 setzen (da Wert-Spalte int ist)
+        // Der eigentliche Text wird in der abschnitte_bewertung.text gespeichert
+        $logValue = ($field === 'text') ? -1 : $value;
+        
         $sql = "INSERT INTO [dbo].[log_abschnitte_bewertung] ([abschnitte_id], [Feld], [Wert], [Nutzer], [Zeitstempel]) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$abschnittId, $field, $value, $username, $createdAt]);
+        $stmt->execute([$abschnittId, $field, $logValue, $username, $createdAt]);
         
     } catch (Exception $e) {
         error_log('Fehler beim Erstellen des Log-Eintrags: ' . $e->getMessage());
