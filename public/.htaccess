@@ -41,3 +41,4 @@ RewriteRule ^(.*)$ index.php [QSA,L]
     AddOutputFilterByType DEFLATE application/x-javascript
 </IfModule>
 
+

@@ -58,7 +58,18 @@ adn1app/
 - `Strasse` (int): Bewertung der Straße im Straßenabschnitt
 - `CreatedAt` (rowversion): rowversion
 
-
+### Tabelle: abschnitte_bewertung
+- `Id` (PK, int): Eindeutige Bewertungs-ID
+- `abschnitte-id` (FK, int): Referenz auf abschnitte.Id
+- `strasse` (int): Bewertungsklasse
+- `gehweg_links` (int)
+- `gehweg_rechts` (int)
+- `seitenstreifen_links` (int)
+- `seitenstreifen_rechts` (int)
+- `review` (int)
+- `schaden` (int)
+- `text` (text)
+- `CreatedAt` (rowversion): rowversion
 
 ### Tabelle: bewertung
 - `Id` (PK, int): Eindeutige Bewertungs-ID
@@ -98,6 +109,11 @@ adn1app/
 - `abschnitte` belongsTo `projects` via `projects-id`
 - `projects` hasMany `abschnitte` via `projects-id`
 - `abschnitte` belongsTo `bilder` via `abschnitte-id`
+
+- `abschnitte_bewertung` belongsTo `abschnitte` via `abschnitte-id`
+- `log_abschnitte_bewertung` belongsTo `abschnitte_bewertung` via `abschnitte-id`
+- `abschnitte_bewertung` hasMany `abschnitte_log_bewertung` via `abschnitte-id`
+
 
 ## Session-Management
 - `PROJEKT_ID`: Aktuell ausgewähltes Projekt

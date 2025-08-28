@@ -51,3 +51,4 @@ try {
     error_log("Initiale Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
 }
 
+

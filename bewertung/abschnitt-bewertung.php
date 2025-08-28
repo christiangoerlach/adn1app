@@ -528,6 +528,44 @@ if ($currentAbschnitt) {
                         <td>-</td>
                         <td>-</td>
                     </tr>
+                    <tr>
+                        <td><strong>Bewertung:</strong></td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="strasse">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="gehweg_links">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="gehweg_rechts">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="seitenstreifen_links">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="seitenstreifen_rechts">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="review">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="bewertung-dropdown" data-field="schaden">
+                                <option value="">Platzhalter</option>
+                            </select>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
