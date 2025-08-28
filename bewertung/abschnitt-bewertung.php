@@ -83,8 +83,22 @@ try {
 
 // Bilder mit Bewertungsdaten für den aktuellen Abschnitt laden
 $bilder = [];
+$abschnittBewertung = null;
+
 if ($currentAbschnitt) {
     try {
+        // Abschnittsbewertung laden
+        $sqlBewertung = "SELECT [strasse], [gehweg_links], [gehweg_rechts], 
+                                [seitenstreifen_links], [seitenstreifen_rechts],
+                                [review], [schaden], [text]
+                         FROM [dbo].[abschnitte_bewertung] 
+                         WHERE [abschnitte-id] = ?";
+        
+        $stmtBewertung = $conn->prepare($sqlBewertung);
+        $stmtBewertung->execute([$currentAbschnitt['Id']]);
+        $abschnittBewertung = $stmtBewertung->fetch(PDO::FETCH_ASSOC);
+        
+        // Bilder laden
         $sql = "SELECT b.[Id], b.[FileName], 
                        bew.[strasse], bew.[gehweg_links], bew.[gehweg_rechts], 
                        bew.[seitenstreifen_links], bew.[seitenstreifen_rechts],
@@ -99,7 +113,7 @@ if ($currentAbschnitt) {
         $bilder = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
     } catch (PDOException $e) {
-        error_log('Fehler beim Laden der Bilder: ' . $e->getMessage());
+        error_log('Fehler beim Laden der Daten: ' . $e->getMessage());
     }
 }
 ?>
@@ -528,44 +542,82 @@ if ($currentAbschnitt) {
                         <td>-</td>
                         <td>-</td>
                     </tr>
-                    <tr>
-                        <td><strong>Bewertung:</strong></td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="strasse">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="gehweg_links">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="gehweg_rechts">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="seitenstreifen_links">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="seitenstreifen_rechts">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="review">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="bewertung-dropdown" data-field="schaden">
-                                <option value="">Platzhalter</option>
-                            </select>
-                        </td>
-                    </tr>
+                                         <tr>
+                         <td><strong>Bewertung:</strong></td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="strasse" style="width: 50px;">
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 1) ? 'selected' : '' ?>>1</option>
+                                 <option value="2" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 2) ? 'selected' : '' ?>>2</option>
+                                 <option value="3" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 3) ? 'selected' : '' ?>>3</option>
+                                 <option value="4" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 4) ? 'selected' : '' ?>>4</option>
+                                 <option value="5" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 5) ? 'selected' : '' ?>>5</option>
+                                 <option value="6" <?= ($abschnittBewertung && $abschnittBewertung['strasse'] == 6) ? 'selected' : '' ?>>6</option>
+                             </select>
+                         </td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="gehweg_links" style="width: 50px;">
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 1) ? 'selected' : '' ?>>1</option>
+                                 <option value="2" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 2) ? 'selected' : '' ?>>2</option>
+                                 <option value="3" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 3) ? 'selected' : '' ?>>3</option>
+                                 <option value="4" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 4) ? 'selected' : '' ?>>4</option>
+                                 <option value="5" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 5) ? 'selected' : '' ?>>5</option>
+                                 <option value="6" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 6) ? 'selected' : '' ?>>6</option>
+                                 <option value="0" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 0) ? 'selected' : '' ?>>Noch nicht bewertet</option>
+                                 <option value="9" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 9) ? 'selected' : '' ?>>Bewertung ausgeschlossen</option>
+                                 <option value="10" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 10) ? 'selected' : '' ?>>Nicht vorhanden</option>
+                                 <option value="11" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_links'] == 11) ? 'selected' : '' ?>>Wie Straße</option>
+                             </select>
+                         </td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="gehweg_rechts" style="width: 50px;">
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 1) ? 'selected' : '' ?>>1</option>
+                                 <option value="2" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 2) ? 'selected' : '' ?>>2</option>
+                                 <option value="3" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 3) ? 'selected' : '' ?>>3</option>
+                                 <option value="4" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 4) ? 'selected' : '' ?>>4</option>
+                                 <option value="5" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 5) ? 'selected' : '' ?>>5</option>
+                                 <option value="6" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 6) ? 'selected' : '' ?>>6</option>
+                                 <option value="0" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 0) ? 'selected' : '' ?>>Noch nicht bewertet</option>
+                                 <option value="9" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 9) ? 'selected' : '' ?>>Bewertung ausgeschlossen</option>
+                                 <option value="10" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 10) ? 'selected' : '' ?>>Nicht vorhanden</option>
+                                 <option value="11" <?= ($abschnittBewertung && $abschnittBewertung['gehweg_rechts'] == 11) ? 'selected' : '' ?>>Wie Straße</option>
+                             </select>
+                         </td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="seitenstreifen_links" style="width: 50px;">
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 1) ? 'selected' : '' ?>>1</option>
+                                 <option value="2" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 2) ? 'selected' : '' ?>>2</option>
+                                 <option value="3" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 3) ? 'selected' : '' ?>>3</option>
+                                 <option value="4" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 4) ? 'selected' : '' ?>>4</option>
+                                 <option value="5" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 5) ? 'selected' : '' ?>>5</option>
+                                 <option value="6" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 6) ? 'selected' : '' ?>>6</option>
+                                 <option value="0" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 0) ? 'selected' : '' ?>>Noch nicht bewertet</option>
+                                 <option value="9" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 9) ? 'selected' : '' ?>>Bewertung ausgeschlossen</option>
+                                 <option value="10" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 10) ? 'selected' : '' ?>>Nicht vorhanden</option>
+                                 <option value="11" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_links'] == 11) ? 'selected' : '' ?>>Wie Straße</option>
+                             </select>
+                         </td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="seitenstreifen_rechts" style="width: 50px;">
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 1) ? 'selected' : '' ?>>1</option>
+                                 <option value="2" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 2) ? 'selected' : '' ?>>2</option>
+                                 <option value="3" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 3) ? 'selected' : '' ?>>3</option>
+                                 <option value="4" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 4) ? 'selected' : '' ?>>4</option>
+                                 <option value="5" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 5) ? 'selected' : '' ?>>5</option>
+                                 <option value="6" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 6) ? 'selected' : '' ?>>6</option>
+                                 <option value="0" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 0) ? 'selected' : '' ?>>Noch nicht bewertet</option>
+                                 <option value="9" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 9) ? 'selected' : '' ?>>Bewertung ausgeschlossen</option>
+                                 <option value="10" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 10) ? 'selected' : '' ?>>Nicht vorhanden</option>
+                                 <option value="11" <?= ($abschnittBewertung && $abschnittBewertung['seitenstreifen_rechts'] == 11) ? 'selected' : '' ?>>Wie Straße</option>
+                             </select>
+                         </td>
+                         <td>
+                             <select class="bewertung-dropdown" data-field="review" style="width: 50px;">
+                                 <option value="0" <?= ($abschnittBewertung && $abschnittBewertung['review'] == 0) ? 'selected' : '' ?>>Nein</option>
+                                 <option value="1" <?= ($abschnittBewertung && $abschnittBewertung['review'] == 1) ? 'selected' : '' ?>>Ja</option>
+                             </select>
+                         </td>
+                         <td>-</td>
+                     </tr>
                 </tbody>
             </table>
         </div>
@@ -928,6 +980,45 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
 // Initial update
 updateCounter();
+
+// Event-Listener für Dropdown-Änderungen
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.bewertung-dropdown');
+    
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('change', function() {
+            const field = this.getAttribute('data-field');
+            const value = this.value;
+            
+            // Speichern in der Datenbank
+            saveAbschnittBewertung(field, value);
+        });
+    });
+});
+
+// Funktion zum Speichern der Abschnittsbewertung
+function saveAbschnittBewertung(field, value) {
+    const abschnittId = <?= json_encode($abschnittId) ?>;
+    
+    fetch('save_abschnitt_bewertung.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `abschnittId=${abschnittId}&field=${field}&value=${value}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Bewertung erfolgreich gespeichert');
+        } else {
+            console.error('Fehler beim Speichern:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Fehler beim Speichern:', error);
+    });
+}
 </script>
 
 </body>

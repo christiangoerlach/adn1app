@@ -95,7 +95,14 @@ adn1app/
 - `CreatedAt` (rowversion): rowversion
 - `Zeitstempel` (datetime2(7)): Erstellungs- / Änderungsdatum
 
-
+### Tabelle: log_abschnitte_bewertung
+- `Id` (PK, int): Eindeutige Log-ID
+- `abschnitte_id` (text): Referenz auf bilder-Id
+- `Feld` (text): Referenz auf die Art der Bewertungsklasse3
+- `Wert` (int): Bewertungsklasse
+- `Nutzer` (text): User
+- `CreatedAt` (rowversion): rowversion
+- `Zeitstempel` (datetime2(7)): Erstellungs- / Änderungsdatum
 
 
 ### Datenbankbeziehungen

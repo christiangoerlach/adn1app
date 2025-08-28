@@ -424,10 +424,10 @@
         </h1>
     </div>
     <div class="header-center">
-        <div class="nav-buttons">
-            <button id="prevBtn" disabled>← Zurück</button>
-            <span id="counter">0 / 0</span>
-            <button id="nextBtn" disabled>Vor →</button>
+<div class="nav-buttons">
+    <button id="prevBtn" disabled>← Zurück</button>
+    <span id="counter">0 / 0</span>
+    <button id="nextBtn" disabled>Vor →</button>
         </div>
         <div id="filter-info" style="margin-left: 20px; font-size: 1.2rem; color: #666;"></div>
     </div>
@@ -1008,7 +1008,7 @@ function loadImages() {
             } else {
                 images = [];
             }
-            
+
             // Wenn eine spezifische Bild-ID übergeben wurde, zu diesem Bild springen
             if (bildId !== '') {
                 const targetIndex = images.findIndex(img => img.id == bildId);
@@ -1018,7 +1018,7 @@ function loadImages() {
                     currentIndex = 0;
                 }
             } else {
-                currentIndex = 0;
+            currentIndex = 0;
             }
             
             updateImage();
