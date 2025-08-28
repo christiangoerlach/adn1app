@@ -386,6 +386,84 @@ if ($currentAbschnitt) {
         button:hover:not(:disabled) {
             background: #f8f9fa;
         }
+        
+        /* Log-Sektion Styles */
+        .log-section {
+            margin-bottom: 30px;
+        }
+        
+        .collapsible-header {
+            cursor: pointer;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .collapsible-header:hover {
+            background: #e9ecef;
+        }
+        
+        .toggle-icon {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .collapsible-content {
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background: white;
+        }
+        
+        .log-table-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .log-table th {
+            background: #f8f9fa;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+        
+        .log-table td {
+            padding: 8px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+            color: #333;
+        }
+        
+        .log-table td:first-child {
+            text-align: left;
+        }
+        
+        .log-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Notizen Textarea Styles */
+        #abschnitt-notizen {
+            resize: vertical;
+            min-height: 60px;
+        }
     </style>
 </head>
 <body>
@@ -618,8 +696,37 @@ if ($currentAbschnitt) {
                          </td>
                          <td>-</td>
                      </tr>
+                     <tr>
+                         <td colspan="8">
+                             <strong>Notizen:</strong><br>
+                             <textarea id="abschnitt-notizen" style="width: 100%; height: 60px; margin-top: 5px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.85rem;" placeholder="Notizen für diesen Straßenabschnitt..."><?= htmlspecialchars($abschnittBewertung['text'] ?? '') ?></textarea>
+                         </td>
+                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+    
+    <div class="log-section">
+        <h2 class="collapsible-header" onclick="toggleLogSection()">
+            <span class="toggle-icon">▶</span> Log
+        </h2>
+        <div id="log-content" class="collapsible-content" style="display: none;">
+            <div class="log-table-container">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Zeitstempel</th>
+                            <th>Feld</th>
+                            <th>Wert</th>
+                            <th>Nutzer</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                        <!-- Wird dynamisch gefüllt -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
@@ -829,6 +936,84 @@ if ($currentAbschnitt) {
 .btn-secondary:hover {
     background-color: #545b62;
 }
+
+/* Log-Sektion Styles */
+.log-section {
+    margin-bottom: 30px;
+}
+
+.collapsible-header {
+    cursor: pointer;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.collapsible-header:hover {
+    background: #e9ecef;
+}
+
+.toggle-icon {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: white;
+}
+
+.log-table-container {
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.log-table th {
+    background: #f8f9fa;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.log-table td {
+    padding: 8px;
+    border-bottom: 1px solid #dee2e6;
+    text-align: center;
+    color: #333;
+}
+
+.log-table td:first-child {
+    text-align: left;
+}
+
+.log-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* Notizen Textarea Styles */
+#abschnitt-notizen {
+    resize: vertical;
+    min-height: 60px;
+}
 </style>
 
 <script>
@@ -981,44 +1166,145 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 // Initial update
 updateCounter();
 
-// Event-Listener für Dropdown-Änderungen
-document.addEventListener('DOMContentLoaded', function() {
-    const dropdowns = document.querySelectorAll('.bewertung-dropdown');
-    
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            const field = this.getAttribute('data-field');
-            const value = this.value;
+        // Event-Listener für Dropdown-Änderungen
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.bewertung-dropdown');
             
-            // Speichern in der Datenbank
-            saveAbschnittBewertung(field, value);
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('change', function() {
+                    const field = this.getAttribute('data-field');
+                    const value = this.value;
+                    
+                    // Speichern in der Datenbank
+                    saveAbschnittBewertung(field, value);
+                });
+            });
+            
+            // Auto-Save für Notizen initialisieren
+            setupNotizenAutoSave();
         });
-    });
-});
 
-// Funktion zum Speichern der Abschnittsbewertung
-function saveAbschnittBewertung(field, value) {
-    const abschnittId = <?= json_encode($abschnittId) ?>;
-    
-    fetch('save_abschnitt_bewertung.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `abschnittId=${abschnittId}&field=${field}&value=${value}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log('Bewertung erfolgreich gespeichert');
-        } else {
-            console.error('Fehler beim Speichern:', data.error);
+        // Funktion zum Speichern der Abschnittsbewertung
+        function saveAbschnittBewertung(field, value) {
+            const abschnittId = <?= json_encode($abschnittId) ?>;
+            
+            fetch('save_abschnitt_bewertung.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `abschnittId=${abschnittId}&field=${field}&value=${value}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Bewertung erfolgreich gespeichert');
+                    // Log-Daten neu laden
+                    loadLogData();
+                } else {
+                    console.error('Fehler beim Speichern:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Speichern:', error);
+            });
         }
-    })
-    .catch(error => {
-        console.error('Fehler beim Speichern:', error);
-    });
-}
+        
+        // Funktion zum Ein-/Ausklappen des Log-Bereichs
+        function toggleLogSection() {
+            const content = document.getElementById('log-content');
+            const icon = document.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▼';
+                loadLogData(); // Daten laden beim Öffnen
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+        
+        // Funktion zum Laden der Log-Daten
+        function loadLogData() {
+            const abschnittId = <?= json_encode($abschnittId) ?>;
+            
+            fetch(`get_log_abschnitt_data.php?abschnittId=${abschnittId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayLogData(data.logs);
+                    } else {
+                        console.error('Fehler beim Laden der Log-Daten:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler beim Laden der Log-Daten:', error);
+                });
+        }
+        
+        // Funktion zum Anzeigen der Log-Daten
+        function displayLogData(logs) {
+            const tbody = document.getElementById('log-table-body');
+            tbody.innerHTML = '';
+            
+            if (logs.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 4;
+                cell.textContent = 'Keine Log-Einträge gefunden';
+                cell.className = 'no-data';
+                return;
+            }
+            
+            logs.forEach(log => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = log.Zeitstempel || log.zeitstempel;
+                row.insertCell(1).textContent = log.Feld || log.feld;
+                row.insertCell(2).textContent = log.Wert || log.wert;
+                row.insertCell(3).textContent = log.Nutzer || log.nutzer;
+            });
+        }
+        
+        // Auto-Save für Notizen
+        let notizenTimeout;
+        
+        function setupNotizenAutoSave() {
+            const textarea = document.getElementById('abschnitt-notizen');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    clearTimeout(notizenTimeout);
+                    notizenTimeout = setTimeout(() => {
+                        saveAbschnittNotizen(this.value);
+                    }, 1000); // 1 Sekunde Verzögerung
+                });
+            }
+        }
+        
+        // Funktion zum Speichern der Notizen
+        function saveAbschnittNotizen(text) {
+            const abschnittId = <?= json_encode($abschnittId) ?>;
+            
+            fetch('save_abschnitt_bewertung.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `abschnittId=${abschnittId}&field=text&value=${encodeURIComponent(text)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Notizen erfolgreich gespeichert');
+                    loadLogData(); // Log-Daten neu laden
+                } else {
+                    console.error('Fehler beim Speichern der Notizen:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Speichern der Notizen:', error);
+            });
+        }
 </script>
 
 </body>

@@ -33,17 +33,25 @@ require_once '../config/database.php';
 
 try {
     // Erlaubte Felder definieren
-    $erlaubteFelder = ['strasse', 'gehweg_links', 'gehweg_rechts', 'seitenstreifen_links', 'seitenstreifen_rechts', 'review', 'schaden'];
+    $erlaubteFelder = ['strasse', 'gehweg_links', 'gehweg_rechts', 'seitenstreifen_links', 'seitenstreifen_rechts', 'review', 'schaden', 'text'];
     
     if (!in_array($field, $erlaubteFelder)) {
         throw new Exception('Ungültiges Feld: ' . $field);
     }
     
-    // Erlaubte Werte definieren
-    $erlaubteWerte = [0, 1, 2, 3, 4, 5, 6, 9, 10, 11];
-    
-    if (!in_array((int)$value, $erlaubteWerte)) {
-        throw new Exception('Ungültiger Wert: ' . $value);
+    // Validierung je nach Feld
+    if ($field === 'text') {
+        // Für Text-Feld: Länge prüfen (angenommen max 1000 Zeichen)
+        if (strlen($value) > 1000) {
+            throw new Exception('Text zu lang (max. 1000 Zeichen)');
+        }
+    } else {
+        // Für numerische Felder: Erlaubte Werte definieren
+        $erlaubteWerte = [0, 1, 2, 3, 4, 5, 6, 9, 10, 11];
+        
+        if (!in_array((int)$value, $erlaubteWerte)) {
+            throw new Exception('Ungültiger Wert: ' . $value);
+        }
     }
     
     // Prüfen ob bereits ein Eintrag für diesen Abschnitt existiert
