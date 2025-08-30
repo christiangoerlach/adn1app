@@ -262,9 +262,34 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Kein Modell hochgeladen</td>
-                        </tr>
+                        <?php
+                        $geojsonDir = __DIR__ . '/zuordnung/geojson/';
+                        $geojsonFiles = [];
+                        
+                        if (is_dir($geojsonDir)) {
+                            $files = scandir($geojsonDir);
+                            foreach ($files as $file) {
+                                if (pathinfo($file, PATHINFO_EXTENSION) === 'geojson') {
+                                    $geojsonFiles[] = $file;
+                                }
+                            }
+                        }
+                        
+                        if (empty($geojsonFiles)): ?>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Keine Datei vorhanden</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($geojsonFiles as $file): ?>
+                                <tr>
+                                    <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">
+                                        <a href="#" onclick="openGeoJSONPopup('<?= htmlspecialchars($file) ?>')" style="color: #007bff; text-decoration: none; font-weight: 500;">
+                                            <?= htmlspecialchars($file) ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
                 
@@ -425,12 +450,39 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                     </tbody>
                 </table>
             </div>
-        </div>
-    <?php endif; ?>
-<?php elseif (is_string($aktuellesProjekt) && !empty($aktuellesProjekt)): ?>
-    <p><?= $aktuellesProjekt ?></p>
-<?php else: ?>
-    <p>Kein Projekt ausgewählt.</p>
-<?php endif; ?>
+                 </div>
+         
+         <!-- GeoJSON Popup wird aus zuordnung/geojson_popup.html geladen -->
+         <iframe id="geojsonPopupFrame" src="../zuordnung/geojson_popup.html" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; border: none;"></iframe>
+         
+         <script>
+         function openGeoJSONPopup(filename) {
+             const frame = document.getElementById('geojsonPopupFrame');
+             frame.style.display = 'block';
+             
+             // Warten bis das iframe geladen ist, dann die Funktion aufrufen
+             frame.onload = function() {
+                 frame.contentWindow.openGeoJSONPopup(filename);
+             };
+             
+             // Falls das iframe bereits geladen ist
+             if (frame.contentWindow.openGeoJSONPopup) {
+                 frame.contentWindow.openGeoJSONPopup(filename);
+             }
+         }
+         
+         // Event-Listener für Schließen-Event vom iframe
+         window.addEventListener('message', function(event) {
+             if (event.data === 'closeGeoJSONPopup') {
+                 document.getElementById('geojsonPopupFrame').style.display = 'none';
+             }
+         });
+         </script>
+     <?php endif; ?>
+ <?php elseif (is_string($aktuellesProjekt) && !empty($aktuellesProjekt)): ?>
+     <p><?= $aktuellesProjekt ?></p>
+ <?php else: ?>
+     <p>Kein Projekt ausgewählt.</p>
+ <?php endif; ?>
 
 

@@ -49,6 +49,8 @@ adn1app/
 - `projects-id` (FK, int): Referenz auf projects.Id
 - `abschnitte-id` (int): Referenz auf abschnitte.Id
 - `FileName` (text): Dateiname des Bildes
+- `Koordinate-x` (float): X-Koordinate
+- `Koordinate-y` (float): Y-Koordinate
 - `CreatedAt` (rowversion): rowversion
 
 ### Tabelle: abschnitte

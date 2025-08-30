@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>Netzknotenmodell</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialisiere die Karte
+    const map = L.map('map').setView([51.3, 9.5], 6); // Deutschland-Zentrum
+
+    // Füge OpenStreetMap als Hintergrundkarte hinzu
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap-Mitwirkende'
+    }).addTo(map);
+
+    // Liste der GeoJSON-Dateien
+    const geojsonFiles = [
+    //  'Punkt_0_8360.geojson',
+    //  'Linie_0_8360.geojson',
+    //  'Text_0_8360.geojson',
+      'Objekt_0_8360.geojson',
+     // 'Punkt_0_8050.geojson',
+    //  'SymbolLinien.geojson'
+    ];
+
+    // Funktion zur Erstellung des Popup-Inhalts mit "Name1", "Textstring" und Dateiname
+    function createPopupContent(properties, filename) {
+      return `
+        <strong>Datei:</strong> ${filename}<br>
+        <strong>Name1:</strong> ${properties.Name1 || 'Nicht verfügbar'}<br>
+        <strong>Textstring:</strong> ${properties.Textstring || 'Nicht verfügbar'}
+      `;
+    }
+
+    // Lade und verarbeite jede GeoJSON-Datei
+    geojsonFiles.forEach(file => {
+      fetch(file)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Datei ${file} konnte nicht geladen werden.`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          L.geoJSON(data, {
+            pointToLayer: (feature, latlng) => L.marker(latlng),
+            onEachFeature: (feature, layer) => {
+              const popup = createPopupContent(feature.properties || {}, file);
+              layer.bindPopup(popup);
+            }
+          }).addTo(map);
+        })
+        .catch(error => {
+          console.error('Fehler beim Laden der Datei:', file, error);
+        });
+    });
+  </script>
+</body>
+</html>

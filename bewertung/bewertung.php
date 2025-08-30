@@ -5,6 +5,7 @@
     <title>ADN StraßenWeb - Bildergalerie</title>
     <link rel="icon" href="https://adn-consulting.de/sites/default/files/favicon-96x96.png" type="image/png" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { 
             text-align: center; 
@@ -245,6 +246,27 @@
         #azureMap {
             border: 2px solid #ddd;
             border-radius: 5px;
+        }
+        
+        #coordinatesMap {
+            width: 100%;
+            height: 250px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .coordinates-info {
+            margin-top: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .coordinates-info strong {
+            color: #333;
         }
         
         .top-bar {
@@ -566,13 +588,26 @@
             </div>
         </div>
         
-        <div class="collapsible-section map-section">
-            <h3 class="collapsible-header" data-target="map-content">
+
+        
+        <div class="collapsible-section coordinates-section">
+            <h3 class="collapsible-header" data-target="coordinates-content">
                 <span class="toggle-icon">▶</span>
-                Kartenansicht
+                Bildkoordinaten
             </h3>
-            <div id="map-content" class="collapsible-content collapsed">
-                <div id="azureMap" style="width: 100%; height: 300px;"></div>
+            <div id="coordinates-content" class="collapsible-content collapsed">
+                <div id="coordinatesMap"></div>
+                <div class="coordinates-info">
+                    <div style="margin-bottom: 8px;">
+                        <strong>Koordinaten:</strong><br>
+                        <span id="coordinates-lng" style="margin-left: 10px;">Länge: Lade...</span><br>
+                        <span id="coordinates-lat" style="margin-left: 10px;">Breite: Lade...</span>
+                    </div>
+                    <div>
+                        <strong>Abschnitt:</strong><br>
+                        <span id="abschnitt-display" style="margin-left: 10px;">Lade Abschnittsinformationen...</span>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -602,17 +637,7 @@
             </div>
         </div>
         
-        <div class="collapsible-section abschnitt-section">
-            <h3 class="collapsible-header" data-target="abschnitt-content">
-                <span class="toggle-icon">▶</span>
-                Straßenabschnitt
-            </h3>
-            <div id="abschnitt-content" class="collapsible-content collapsed">
-                <div id="abschnitt-info" style="padding: 12px; background: white; border-radius: 4px; border: 1px solid #ddd; font-size: 0.8rem; color: #333;">
-                    Lade Abschnittsinformationen...
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 
@@ -680,6 +705,42 @@ function updateImage() {
     preloadImages(currentIndex);
 }
 
+// Einfache Koordinaten-Anzeige
+function loadCoordinates(bildId) {
+    fetch(`get_coordinates.php?bildId=${bildId}`)
+        .then(response => response.json())
+        .then(data => {
+            const coordinatesDisplay = document.getElementById('coordinates-display');
+            if (data.success && data.coordinates) {
+                document.getElementById('coordinates-lng').textContent = `Länge: ${data.coordinates.lng}`;
+                document.getElementById('coordinates-lat').textContent = `Breite: ${data.coordinates.lat}`;
+                
+                // Marker setzen und Karte zentrieren, falls sie bereits initialisiert ist
+                if (coordinatesMap) {
+                    // Bestehenden Marker entfernen
+                    if (coordinatesMarker) {
+                        coordinatesMap.removeLayer(coordinatesMarker);
+                    }
+                    
+                    // Neuen Marker setzen
+                    const coordinates = [data.coordinates.lat, data.coordinates.lng];
+                    coordinatesMarker = L.marker(coordinates).addTo(coordinatesMap);
+                    
+                    // Karte auf den Marker zentrieren
+                    coordinatesMap.setView(coordinates, 15);
+                }
+            } else {
+                document.getElementById('coordinates-lng').textContent = 'Länge: Keine Koordinaten verfügbar';
+                document.getElementById('coordinates-lat').textContent = 'Breite: Keine Koordinaten verfügbar';
+            }
+        })
+        .catch(error => {
+            console.error('Fehler beim Laden der Koordinaten:', error);
+            document.getElementById('coordinates-lng').textContent = 'Länge: Fehler beim Laden';
+            document.getElementById('coordinates-lat').textContent = 'Breite: Fehler beim Laden';
+        });
+}
+
 // Bewertung für ein Bild laden
 function loadBewertung(bildId) {
     fetch(`get_bewertung.php?bildId=${bildId}`)
@@ -700,6 +761,9 @@ function loadBewertung(bildId) {
     
     // Abschnittsinformationen laden
     loadAbschnittInfo(bildId);
+    
+    // Koordinaten laden
+    loadCoordinates(bildId);
 }
 
 // Bewertungsbuttons aktualisieren
@@ -1336,6 +1400,20 @@ function formatDateTime(dateTimeString) {
     }
 }
 
+// Einfache Leaflet-Karte
+let coordinatesMap = null;
+let coordinatesMarker = null;
+
+// Karte initialisieren
+function initCoordinatesMap() {
+    if (!coordinatesMap) {
+        coordinatesMap = L.map('coordinatesMap').setView([51.3, 9.5], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap-Mitwirkende'
+        }).addTo(coordinatesMap);
+    }
+}
+
 // Load images on page load
 loadImages();
 
@@ -1379,22 +1457,44 @@ async function loadAbschnittInfo(bildId) {
         const response = await fetch(`get_abschnitt_info.php?bildId=${bildId}`);
         const data = await response.json();
         
-        const abschnittInfo = document.getElementById('abschnitt-info');
-        if (abschnittInfo) {
+        const abschnittDisplay = document.getElementById('abschnitt-display');
+        if (abschnittDisplay) {
             if (data.abschnittname) {
-                abschnittInfo.textContent = data.abschnittname;
+                abschnittDisplay.textContent = data.abschnittname;
             } else {
-                abschnittInfo.textContent = 'Nicht zugeordnet';
+                abschnittDisplay.textContent = 'Nicht zugeordnet';
             }
         }
     } catch (error) {
         console.error('Fehler beim Laden der Abschnittsinformationen:', error);
-        const abschnittInfo = document.getElementById('abschnitt-info');
-        if (abschnittInfo) {
-            abschnittInfo.textContent = 'Fehler beim Laden';
+        const abschnittDisplay = document.getElementById('abschnitt-display');
+        if (abschnittDisplay) {
+            abschnittDisplay.textContent = 'Fehler beim Laden';
         }
     }
 }
+
+// Leaflet-JavaScript laden
+const leafletScript = document.createElement('script');
+leafletScript.src = 'https://unpkg.com/leaflet/dist/leaflet.js';
+leafletScript.onload = function() {
+    // Karte initialisieren, wenn der Koordinaten-Abschnitt geöffnet wird
+    const coordinatesHeader = document.querySelector('[data-target="coordinates-content"]');
+    if (coordinatesHeader) {
+        coordinatesHeader.addEventListener('click', function() {
+            if (!coordinatesMap) {
+                setTimeout(() => {
+                    initCoordinatesMap();
+                    // Koordinaten für das aktuelle Bild laden und Marker setzen
+                    if (currentBildId) {
+                        loadCoordinates(currentBildId);
+                    }
+                }, 100);
+            }
+        });
+    }
+};
+document.head.appendChild(leafletScript);
 </script>
 
 </body>
