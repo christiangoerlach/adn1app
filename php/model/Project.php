@@ -8,7 +8,17 @@ class Project {
     private $conn;
     
     public function __construct() {
+        // Versuche globale Verbindung zu nutzen
         global $conn;
+        
+        // Falls globale Verbindung nicht existiert, nutze database.php
+        if (!isset($conn) || $conn === null) {
+            if (file_exists(__DIR__ . '/../../config/database.php')) {
+                require_once __DIR__ . '/../../config/database.php';
+                $conn = getDatabaseConnection();
+            }
+        }
+        
         $this->conn = $conn;
     }
     
@@ -18,11 +28,32 @@ class Project {
      */
     public function getAllProjects() {
         try {
-            $stmt = $this->conn->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY Projektname");
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($this->conn === null) {
+                error_log("Fehler: Datenbankverbindung ist null");
+                return [];
+            }
+            // CONVERT zu VARCHAR für Sortierung, da Projektname möglicherweise TEXT/NTEXT ist
+            $stmt = $this->conn->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY CONVERT(VARCHAR(MAX), Projektname)");
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (empty($result)) {
+                error_log("Warnung: Keine Projekte in der Datenbank gefunden");
+            }
+            return $result;
         } catch (PDOException $e) {
-            error_log("Fehler beim Abrufen der Projekte: " . $e->getMessage());
-            return [];
+            // Fallback: Ohne Sortierung versuchen
+            try {
+                error_log("Fehler mit Sortierung, versuche ohne Sortierung: " . $e->getMessage());
+                $stmt = $this->conn->query("SELECT Id, Projektname FROM [dbo].[projects] ORDER BY Id");
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                // Manuell nach Namen sortieren in PHP
+                usort($result, function($a, $b) {
+                    return strcmp($a['Projektname'], $b['Projektname']);
+                });
+                return $result;
+            } catch (PDOException $e2) {
+                error_log("Fehler beim Abrufen der Projekte: " . $e2->getMessage());
+                return [];
+            }
         }
     }
     

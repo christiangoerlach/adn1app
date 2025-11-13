@@ -13,7 +13,9 @@
 
 <div class="header">
     <div class="header-left">
-        <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo">
+        <a href="/" style="display: inline-block; text-decoration: none;">
+            <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo" style="cursor: pointer;">
+        </a>
     </div>
     <div class="header-title"><?= APP_NAME ?></div>
     <div class="header-right">
@@ -28,17 +30,17 @@
     <div class="project-select">
         <select name="auswahl" id="projekt-auswahl">
             <option value="">-- Projekt wählen --</option>
-            <?php foreach ($projects as $project): ?>
-                <option value="<?= htmlspecialchars($project['Id']) ?>" 
-                        <?= (isset($_SESSION['PROJEKT_ID']) && $_SESSION['PROJEKT_ID'] == $project['Id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($project['Projektname']) ?>
-                </option>
-            <?php endforeach; ?>
+            <?php if (!empty($projects)): ?>
+                <?php foreach ($projects as $project): ?>
+                    <option value="<?= htmlspecialchars($project['Id']) ?>" 
+                            <?= (isset($_SESSION['PROJEKT_ID']) && $_SESSION['PROJEKT_ID'] == $project['Id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($project['Projektname']) ?>
+                    </option>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <option value="">-- Keine Projekte gefunden --</option>
+            <?php endif; ?>
         </select>
-    </div>
-
-    <div style="margin-bottom: 20px;">
-        <a href="/" style="color: #0078D4; text-decoration: none; font-size: 14px;">← Zurück zur Übersicht</a>
     </div>
 
     <div id="projekt-content">
@@ -64,6 +66,13 @@
 </div>
 
 <script src="/js/project.js"></script>
+<script>
+// Zusätzliche Initialisierung nach dem Laden von index_projekt.php
+// Falls index_projekt.php asynchron geladen wird
+if (typeof initProjectSelect === 'function') {
+    initProjectSelect();
+}
+</script>
 
 </body>
 </html>

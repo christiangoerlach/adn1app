@@ -3,10 +3,12 @@
  * Verwaltet die Projektauswahl und AJAX-Requests
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+// Initialisierung beim Laden der Seite
+function initProjectSelect() {
     const projectSelect = document.getElementById('projekt-auswahl');
     
-    if (projectSelect) {
+    if (projectSelect && !projectSelect.hasAttribute('data-initialized')) {
+        projectSelect.setAttribute('data-initialized', 'true');
         projectSelect.addEventListener('change', function() {
             const projectId = this.value;
             
@@ -15,7 +17,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+}
+
+// Bei DOMContentLoaded ausführen
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProjectSelect);
+} else {
+    // DOM ist bereits geladen
+    initProjectSelect();
+}
 
 /**
  * Wählt ein Projekt aus und lädt die Projektübersicht
@@ -25,8 +35,8 @@ function selectProject(projectId) {
     const formData = new FormData();
     formData.append('auswahl', projectId);
 
-    // Projekt auswählen (an /projekt senden)
-    fetch('/projekt', {
+    // Projekt auswählen (an /bewertungm senden)
+    fetch('/bewertungm', {
         method: 'POST',
         body: formData
     })

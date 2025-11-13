@@ -170,7 +170,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Gesamtzahl der Bilder:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #007bff;">
                                 <?php if ($statistics['gesamt'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=all" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($statistics['gesamt']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=all" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($statistics['gesamt']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['gesamt']) ?>
                                 <?php endif; ?>
@@ -180,7 +180,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 1:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_1'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=1" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_1']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=1" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_1']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_1']) ?>
                                 <?php endif; ?>
@@ -190,7 +190,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 2:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_2'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=2" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_2']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=2" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_2']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_2']) ?>
                                 <?php endif; ?>
@@ -200,7 +200,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 3:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_3'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=3" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_3']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=3" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_3']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_3']) ?>
                                 <?php endif; ?>
@@ -210,7 +210,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 4:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_4'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=4" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_4']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=4" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_4']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_4']) ?>
                                 <?php endif; ?>
@@ -220,7 +220,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 5:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_5'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=5" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_5']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=5" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_5']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_5']) ?>
                                 <?php endif; ?>
@@ -230,7 +230,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 6:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
                                 <?php if ($statistics['zustand_6'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=zustand&wert=6" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_6']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zustand&wert=6" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($statistics['zustand_6']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['zustand_6']) ?>
                                 <?php endif; ?>
@@ -240,7 +240,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                             <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Nicht bewertet:</td>
                             <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; color: #6c757d;">
                                 <?php if ($statistics['nicht_bewertet'] > 0): ?>
-                                    <a href="bewertung/bewertung.php?filter=nicht_bewertet" style="color: #6c757d; text-decoration: none;"><?= htmlspecialchars($statistics['nicht_bewertet']) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=nicht_bewertet" style="color: #6c757d; text-decoration: none;"><?= htmlspecialchars($statistics['nicht_bewertet']) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($statistics['nicht_bewertet']) ?>
                                 <?php endif; ?>
@@ -309,7 +309,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 $zugeordnet = $statistics['netzknoten']['zugeordnet'] ?? 0;
                                 if ($zugeordnet > 0): 
                                 ?>
-                                    <a href="bewertung/bewertung.php?filter=zugeordnet" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($zugeordnet) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=zugeordnet" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($zugeordnet) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($zugeordnet) ?>
                                 <?php endif; ?>
@@ -322,7 +322,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                                 $nichtZugeordnet = $statistics['netzknoten']['nicht_zugeordnet'] ?? 0;
                                 if ($nichtZugeordnet > 0): 
                                 ?>
-                                    <a href="bewertung/bewertung.php?filter=nicht_zugeordnet" style="color: #6c757d; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($nichtZugeordnet) ?></a>
+                                    <a href="/bewertung/bewertung.php?filter=nicht_zugeordnet" style="color: #6c757d; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($nichtZugeordnet) ?></a>
                                 <?php else: ?>
                                     <?= htmlspecialchars($nichtZugeordnet) ?>
                                 <?php endif; ?>

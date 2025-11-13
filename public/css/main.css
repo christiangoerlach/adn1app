@@ -23,7 +23,18 @@ body {
 }
 
 .header-left img { 
-    height: 50px; 
+    height: 50px;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.header-left a {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.header-left a:hover img {
+    opacity: 0.8;
 }
 
 .header-title { 

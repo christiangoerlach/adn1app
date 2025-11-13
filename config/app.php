@@ -22,9 +22,10 @@ define('APP_VERSION', '2.0.0');
 if (!defined('APP_BUILD_DATE')) {
     $buildDate = null;
     
-    // Versuche Git-Log zu verwenden (am genauesten)
+    // Versuche Git-Log zu verwenden (am genauesten) - mit Uhrzeit
     if (function_exists('shell_exec') && file_exists(__DIR__ . '/../.git')) {
-        $gitCommand = 'git log -1 --format=%cd --date=short';
+        // Git log mit Datum und Uhrzeit (UTC)
+        $gitCommand = 'git log -1 --format=%cd --date=iso-strict';
         // Für Windows: Umleitung von stderr
         if (PHP_OS_FAMILY === 'Windows') {
             $gitCommand .= ' 2>nul';
@@ -33,13 +34,17 @@ if (!defined('APP_BUILD_DATE')) {
         }
         $gitDate = @shell_exec($gitCommand);
         if ($gitDate) {
-            $buildDate = trim($gitDate);
+            $gitDate = trim($gitDate);
+            // Konvertiere UTC-Zeit in lokale Zeitzone (Europe/Berlin)
+            $dateTime = new DateTime($gitDate, new DateTimeZone('UTC'));
+            $dateTime->setTimezone(new DateTimeZone('Europe/Berlin'));
+            $buildDate = $dateTime->format('Y-m-d H:i:s');
         }
     }
     
-    // Fallback: Nutze Filemtime dieser Datei
+    // Fallback: Nutze Filemtime dieser Datei mit Uhrzeit (bereits in lokaler Zeitzone)
     if (!$buildDate) {
-        $buildDate = date('Y-m-d', filemtime(__FILE__));
+        $buildDate = date('Y-m-d H:i:s', filemtime(__FILE__));
     }
     
     define('APP_BUILD_DATE', $buildDate);

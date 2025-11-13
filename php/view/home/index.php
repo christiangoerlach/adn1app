@@ -36,6 +36,11 @@
         
         .header-left img {
             height: 50px;
+            transition: opacity 0.2s;
+        }
+        
+        .header-left a:hover img {
+            opacity: 0.8;
         }
         
         .header-title {
@@ -165,7 +170,9 @@
 
 <div class="header">
     <div class="header-left">
-        <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo">
+        <a href="/" style="display: inline-block; text-decoration: none;">
+            <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo" style="cursor: pointer;">
+        </a>
     </div>
     <div class="header-title"><?= APP_NAME ?></div>
     <div class="header-right">
@@ -185,9 +192,9 @@
     <div class="menu-grid">
         <div class="menu-card bewertung">
             <div class="menu-card-icon">⭐</div>
-            <h2>Bewertung</h2>
+            <h2>Manuelle Bildbewertung</h2>
             <p>Projekte auswählen und Bilder bewerten</p>
-            <a href="/projekt" class="menu-card-button">Öffnen</a>
+            <a href="/bewertungm" class="menu-card-button">Öffnen</a>
         </div>
         
         <div class="menu-card karte">
@@ -203,8 +210,7 @@
 
 <footer class="footer">
     <div class="footer-version">
-        Version <?= htmlspecialchars(APP_VERSION) ?> | 
-        Zuletzt geändert: <?= date('d.m.Y', strtotime(APP_BUILD_DATE)) ?>
+        Zuletzt geändert: <?= date('d.m.Y H:i', strtotime(APP_BUILD_DATE)) ?> Uhr
     </div>
 </footer>
 

@@ -25,8 +25,8 @@ if ($path === '' || $path === 'index.php') {
     // Neue Übersichtsseite
     $controller = new HomeController();
     $controller->index();
-} elseif ($path === 'projekt') {
-    // Projektauswahl-Seite (alte Startseite)
+} elseif ($path === 'bewertungm') {
+    // Projektauswahl-Seite für manuelle Bildbewertung
     $controller = new ProjectController();
     
     if ($requestMethod === 'POST' && isset($_POST['auswahl'])) {
@@ -34,11 +34,50 @@ if ($path === '' || $path === 'index.php') {
     } else {
         $controller->index();
     }
+} elseif (strpos($path, 'bewertung/') === 0) {
+    // Alte Bewertungsdateien direkt laden (z.B. bewertung/bewertung.php, bewertung/abschnitt-bewertung.php)
+    // Entferne "bewertung/" Präfix und füge .php hinzu (falls nicht vorhanden)
+    $fileName = substr($path, 10); // "bewertung/" = 10 Zeichen
+    // Entferne .php falls bereits vorhanden
+    if (substr($fileName, -4) === '.php') {
+        $fileName = substr($fileName, 0, -4);
+    }
+    
+    // Korrigierter Pfad: Von public/index.php zu bewertung/
+    $filePath = realpath(__DIR__ . '/../bewertung/' . $fileName . '.php');
+    
+    // Sicherheitsprüfung: Nur Dateien im bewertung/ Ordner erlauben
+    $allowedDir = realpath(__DIR__ . '/../bewertung');
+    
+    if ($filePath && strpos($filePath, $allowedDir) === 0 && file_exists($filePath)) {
+        require_once $filePath;
+        exit;
+    } else {
+        http_response_code(404);
+        echo '<h1>404 - Datei nicht gefunden</h1>';
+        echo '<p>Die angeforderte Datei existiert nicht.</p>';
+        echo '<p>Gesuchter Pfad: ' . htmlspecialchars(__DIR__ . '/../bewertung/' . $fileName . '.php') . '</p>';
+        if ($filePath) {
+            echo '<p>Realpath: ' . htmlspecialchars($filePath) . '</p>';
+        }
+        if ($allowedDir) {
+            echo '<p>Allowed Dir: ' . htmlspecialchars($allowedDir) . '</p>';
+        }
+        echo '<p><a href="/">Zurück zur Übersicht</a></p>';
+        exit;
+    }
 } elseif ($path === 'bewertung') {
-    // Bewertungsseite
-    require_once __DIR__ . '/../php/controller/BewertungController.php';
-    $controller = new BewertungController();
-    $controller->index();
+    // Alte Bewertungsseite mit Filter-Parametern
+    $filePath = __DIR__ . '/../bewertung/bewertung.php';
+    if (file_exists($filePath)) {
+        require_once $filePath;
+        exit;
+    } else {
+        // Fallback: Neue MVC-Route
+        require_once __DIR__ . '/../php/controller/BewertungController.php';
+        $controller = new BewertungController();
+        $controller->index();
+    }
 } elseif ($path === 'map') {
     // Kartenansicht
     require_once __DIR__ . '/../php/controller/MapController.php';
@@ -71,6 +110,18 @@ if ($path === '' || $path === 'index.php') {
     } else {
         http_response_code(404);
         echo json_encode(['error' => 'API-Endpunkt nicht gefunden']);
+    }
+} elseif (strpos($path, 'bewertung/') === false && file_exists(__DIR__ . '/../bewertung/' . basename($path) . '.php')) {
+    // Alte Bewertungsdateien im bewertung-Ordner (z.B. bilder.php, get_bewertung.php) direkt laden
+    $fileName = basename($path);
+    if (substr($fileName, -4) !== '.php') {
+        $fileName .= '.php';
+    }
+    $filePath = __DIR__ . '/../bewertung/' . $fileName;
+    
+    if (file_exists($filePath)) {
+        require_once $filePath;
+        exit;
     }
 } else {
     // 404 - Seite nicht gefunden
