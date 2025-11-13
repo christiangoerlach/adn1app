@@ -37,17 +37,29 @@
         </select>
     </div>
 
+    <div style="margin-bottom: 20px;">
+        <a href="/" style="color: #0078D4; text-decoration: none; font-size: 14px;">← Zurück zur Übersicht</a>
+    </div>
+
     <div id="projekt-content">
-        <?php if ($currentProject): ?>
-            <p>Aktuelles Projekt: <strong><?= htmlspecialchars($currentProject['Projektname']) ?></strong></p>
-            <p>Anzahl Bilder: <strong><?= $imageCount ?></strong></p>
-            
-            <div style="margin-top:20px;">
-                <a href="/bewertung" class="button-link">Zur Bewertung</a>
-            </div>
-        <?php else: ?>
-            <p>Kein Projekt ausgewählt.</p>
-        <?php endif; ?>
+        <?php 
+        // Inkludiere index_projekt.php für die Statistiken und detaillierte Ansicht
+        if (file_exists(__DIR__ . '/../../../index_projekt.php')) {
+            include __DIR__ . '/../../../index_projekt.php';
+        } else {
+            // Fallback wenn index_projekt.php nicht existiert
+            if ($currentProject): ?>
+                <p>Aktuelles Projekt: <strong><?= htmlspecialchars($currentProject['Projektname']) ?></strong></p>
+                <p>Anzahl Bilder: <strong><?= $imageCount ?></strong></p>
+                
+                <div style="margin-top:20px;">
+                    <a href="/bewertung" class="button-link">Zur Bewertung</a>
+                </div>
+            <?php else: ?>
+                <p>Kein Projekt ausgewählt.</p>
+            <?php endif;
+        }
+        ?>
     </div>
 </div>
 

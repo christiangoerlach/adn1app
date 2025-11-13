@@ -25,16 +25,16 @@ function selectProject(projectId) {
     const formData = new FormData();
     formData.append('auswahl', projectId);
 
-    // Projekt auswählen
-    fetch('/', {
+    // Projekt auswählen (an /projekt senden)
+    fetch('/projekt', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Nach Setzen der Session den Projektbereich neu laden
-            loadProjectOverview();
+            // Seite neu laden, um Statistiken zu aktualisieren
+            window.location.reload();
         } else {
             console.error('Fehler beim Auswählen des Projekts:', data.error);
             alert('Fehler beim Auswählen des Projekts: ' + (data.error || 'Unbekannter Fehler'));
@@ -50,16 +50,9 @@ function selectProject(projectId) {
  * Lädt die Projektübersicht neu
  */
 function loadProjectOverview() {
-    fetch('/api/project-overview')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('projekt-content').innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Fehler beim Laden der Projektübersicht:', error);
-            document.getElementById('projekt-content').innerHTML = 
-                '<p>Fehler beim Laden der Projektübersicht</p>';
-        });
+    // Wenn index_projekt.php eingebunden ist, einfach die Seite neu laden
+    // da die Statistiken dann automatisch aktualisiert werden
+    window.location.reload();
 }
 
 /**

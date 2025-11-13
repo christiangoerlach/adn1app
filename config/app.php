@@ -15,6 +15,36 @@ $dotenv->load();
 // Anwendungseinstellungen
 define('APP_NAME', 'A.D.N. StraßenWeb');
 define('APP_VERSION', '2.0.0');
+
+// Build-Datum: Automatisch aus Git oder Filemtime berechnen
+// Falls Git verfügbar ist, nutze das letzte Commit-Datum
+// Ansonsten nutze das Änderungsdatum dieser Datei
+if (!defined('APP_BUILD_DATE')) {
+    $buildDate = null;
+    
+    // Versuche Git-Log zu verwenden (am genauesten)
+    if (function_exists('shell_exec') && file_exists(__DIR__ . '/../.git')) {
+        $gitCommand = 'git log -1 --format=%cd --date=short';
+        // Für Windows: Umleitung von stderr
+        if (PHP_OS_FAMILY === 'Windows') {
+            $gitCommand .= ' 2>nul';
+        } else {
+            $gitCommand .= ' 2>/dev/null';
+        }
+        $gitDate = @shell_exec($gitCommand);
+        if ($gitDate) {
+            $buildDate = trim($gitDate);
+        }
+    }
+    
+    // Fallback: Nutze Filemtime dieser Datei
+    if (!$buildDate) {
+        $buildDate = date('Y-m-d', filemtime(__FILE__));
+    }
+    
+    define('APP_BUILD_DATE', $buildDate);
+}
+
 define('APP_DEBUG', $_ENV['APP_DEBUG'] ?? false);
 
 // Pfade
