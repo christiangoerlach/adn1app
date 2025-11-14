@@ -1,0 +1,7 @@
+# Nginx-Konfiguration für Azure App Service
+# Diese Datei wird von Azure automatisch geladen
+
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+
