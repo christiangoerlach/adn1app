@@ -35,8 +35,8 @@ function selectProject(projectId) {
     const formData = new FormData();
     formData.append('auswahl', projectId);
 
-    // Projekt auswählen (an /bewertungm senden)
-    fetch('/bewertungm', {
+    // Projekt auswählen (an /index.php?path=bewertungm senden)
+    fetch('/index.php?path=bewertungm', {
         method: 'POST',
         body: formData
     })

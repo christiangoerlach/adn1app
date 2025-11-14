@@ -132,7 +132,7 @@
             if (!currentImage) return;
             
             // Bewertung an Server senden
-            fetch('/api/rate-image', {
+            fetch('/index.php?path=api&action=rate-image', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

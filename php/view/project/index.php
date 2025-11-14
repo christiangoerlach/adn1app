@@ -13,7 +13,7 @@
 
 <div class="header">
     <div class="header-left">
-        <a href="/" style="display: inline-block; text-decoration: none;">
+        <a href="/index.php" style="display: inline-block; text-decoration: none;">
             <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo" style="cursor: pointer;">
         </a>
     </div>
@@ -55,7 +55,7 @@
                 <p>Anzahl Bilder: <strong><?= $imageCount ?></strong></p>
                 
                 <div style="margin-top:20px;">
-                    <a href="/bewertung" class="button-link">Zur Bewertung</a>
+                    <a href="/index.php?path=bewertung" class="button-link">Zur Bewertung</a>
                 </div>
             <?php else: ?>
                 <p>Kein Projekt ausgewählt.</p>

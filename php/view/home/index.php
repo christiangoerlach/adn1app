@@ -170,7 +170,7 @@
 
 <div class="header">
     <div class="header-left">
-        <a href="/" style="display: inline-block; text-decoration: none;">
+        <a href="/index.php" style="display: inline-block; text-decoration: none;">
             <img src="https://adn-consulting.de/sites/default/files/Logo-ADN_0_0.jpg" alt="ADN Logo" style="cursor: pointer;">
         </a>
     </div>
@@ -194,14 +194,14 @@
             <div class="menu-card-icon">⭐</div>
             <h2>Manuelle Bildbewertung</h2>
             <p>Projekte auswählen und Bilder bewerten</p>
-            <a href="/bewertungm" class="menu-card-button">Öffnen</a>
+            <a href="/index.php?path=bewertungm" class="menu-card-button">Öffnen</a>
         </div>
         
         <div class="menu-card karte">
             <div class="menu-card-icon">🗺️</div>
             <h2>Kartenansicht</h2>
             <p>Projektdaten auf einer interaktiven Karte anzeigen</p>
-            <a href="/map" class="menu-card-button">Öffnen</a>
+            <a href="/index.php?path=map" class="menu-card-button">Öffnen</a>
         </div>
         
         <!-- Weitere Karten können hier hinzugefügt werden -->

@@ -25,13 +25,13 @@ class BewertungController {
         }
         
         if (empty($_SESSION['PROJEKT_ID'])) {
-            header('Location: /bewertungm');
+            header('Location: /index.php?path=bewertungm');
             exit;
         }
         
         $project = $this->projectModel->getProjectById($_SESSION['PROJEKT_ID']);
         if (!$project) {
-            header('Location: /bewertungm');
+            header('Location: /index.php?path=bewertungm');
             exit;
         }
         
