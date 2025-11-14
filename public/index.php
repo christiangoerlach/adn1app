@@ -26,6 +26,24 @@ if (strpos($path, 'public/') === 0) {
     $path = substr($path, 7); // "public/" = 7 Zeichen entfernen
 }
 
+// Azure-spezifisch: Falls APP_BASE_PATH gesetzt ist und der Pfad damit beginnt, entferne es
+if (defined('APP_BASE_PATH')) {
+    $basePathValue = constant('APP_BASE_PATH');
+    if (!empty($basePathValue) && $basePathValue !== '/') {
+        $basePath = trim($basePathValue, '/');
+        if (!empty($basePath) && strpos($path, $basePath . '/') === 0) {
+            $path = substr($path, strlen($basePath) + 1);
+        } elseif ($path === $basePath) {
+            $path = '';
+        }
+    }
+}
+
+// Debug-Modus: Falls APP_DEBUG aktiviert ist, gebe Pfad-Informationen aus
+if (defined('APP_DEBUG') && constant('APP_DEBUG')) {
+    error_log("Routing Debug - REQUEST_URI: $requestUri, Path: $path");
+}
+
 // Einfaches Routing
 if ($path === '' || $path === 'index.php') {
     // Neue Übersichtsseite
@@ -134,5 +152,18 @@ if ($path === '' || $path === 'index.php') {
     http_response_code(404);
     echo '<h1>404 - Seite nicht gefunden</h1>';
     echo '<p>Die angeforderte Seite existiert nicht.</p>';
+    if (defined('APP_DEBUG') && constant('APP_DEBUG')) {
+        echo '<p><strong>Debug-Informationen:</strong></p>';
+        echo '<ul>';
+        echo '<li>REQUEST_URI: ' . htmlspecialchars($requestUri) . '</li>';
+        echo '<li>Erkannter Pfad: ' . htmlspecialchars($path) . '</li>';
+        echo '<li>REQUEST_METHOD: ' . htmlspecialchars($requestMethod) . '</li>';
+        if (defined('APP_BASE_PATH')) {
+            echo '<li>APP_BASE_PATH: ' . htmlspecialchars(constant('APP_BASE_PATH')) . '</li>';
+        }
+        echo '<li>SCRIPT_NAME: ' . htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '') . '</li>';
+        echo '<li>PHP_SELF: ' . htmlspecialchars($_SERVER['PHP_SELF'] ?? '') . '</li>';
+        echo '</ul>';
+    }
     echo '<p><a href="/">Zurück zur Übersicht</a></p>';
 }
