@@ -5,7 +5,7 @@
     <title><?= APP_NAME ?></title>
     <link rel="icon" href="https://adn-consulting.de/sites/default/files/favicon-96x96.png" type="image/png" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
 
@@ -46,11 +46,28 @@
     <div id="projekt-content">
         <?php 
         // Inkludiere index_projekt.php für die Statistiken und detaillierte Ansicht
-        if (file_exists(__DIR__ . '/../../../index_projekt.php')) {
-            include __DIR__ . '/../../../index_projekt.php';
+        $indexProjektPath = __DIR__ . '/../../../index_projekt.php';
+        if (file_exists($indexProjektPath)) {
+            // Fehlerbehandlung für include
+            try {
+                include $indexProjektPath;
+            } catch (Exception $e) {
+                error_log('Fehler beim Laden von index_projekt.php: ' . $e->getMessage());
+                // Fallback wenn index_projekt.php einen Fehler hat
+                if (isset($currentProject) && $currentProject): ?>
+                    <p>Aktuelles Projekt: <strong><?= htmlspecialchars($currentProject['Projektname']) ?></strong></p>
+                    <p>Anzahl Bilder: <strong><?= $imageCount ?></strong></p>
+                    
+                    <div style="margin-top:20px;">
+                        <a href="/index.php?path=bewertung" class="button-link">Zur Bewertung</a>
+                    </div>
+                <?php else: ?>
+                    <p>Kein Projekt ausgewählt.</p>
+                <?php endif;
+            }
         } else {
             // Fallback wenn index_projekt.php nicht existiert
-            if ($currentProject): ?>
+            if (isset($currentProject) && $currentProject): ?>
                 <p>Aktuelles Projekt: <strong><?= htmlspecialchars($currentProject['Projektname']) ?></strong></p>
                 <p>Anzahl Bilder: <strong><?= $imageCount ?></strong></p>
                 
@@ -65,7 +82,7 @@
     </div>
 </div>
 
-<script src="/js/project.js"></script>
+<script src="/public/js/project.js"></script>
 <script>
 // Zusätzliche Initialisierung nach dem Laden von index_projekt.php
 // Falls index_projekt.php asynchron geladen wird
