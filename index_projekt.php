@@ -32,119 +32,108 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
         $aktuellesProjekt = 'Fehler beim Laden des Projekts: ' . htmlspecialchars($e->getMessage());
     }
 
-    // Statistiken abfragen
+    // Statistiken abfragen - OPTIMIERT: Kombinierte Abfragen statt viele einzelne
     try {
-        // Gesamtzahl der Bilder
-        $stmt = $conn->prepare("SELECT COUNT(*) FROM [dbo].[bilder] WHERE [projects-id] = ?");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['gesamt'] = $stmt->fetchColumn();
+        $projektId = $_SESSION['PROJEKT_ID'];
         
-        // Anzahl der Bilder pro Bewertungsklasse
-        for ($i = 1; $i <= 6; $i++) {
-            $stmt = $conn->prepare("
-                SELECT COUNT(*) 
-                FROM [dbo].[bilder] b
-                INNER JOIN [dbo].[bewertung] bew ON b.Id = bew.[bilder-id]
-                WHERE b.[projects-id] = ? AND bew.strasse = ?
-            ");
-            $stmt->execute([$_SESSION['PROJEKT_ID'], $i]);
-            $statistics['zustand_' . $i] = $stmt->fetchColumn();
-        }
-        
-        // Anzahl der nicht bewerteten Bilder
+        // 1. Alle Bild-Statistiken in EINER Abfrage mit CASE WHEN
         $stmt = $conn->prepare("
-            SELECT COUNT(*) 
+            SELECT 
+                COUNT(*) as gesamt,
+                COUNT(CASE WHEN bew.[bilder-id] IS NULL THEN 1 END) as nicht_bewertet,
+                COUNT(CASE WHEN bew.strasse = 1 THEN 1 END) as zustand_1,
+                COUNT(CASE WHEN bew.strasse = 2 THEN 1 END) as zustand_2,
+                COUNT(CASE WHEN bew.strasse = 3 THEN 1 END) as zustand_3,
+                COUNT(CASE WHEN bew.strasse = 4 THEN 1 END) as zustand_4,
+                COUNT(CASE WHEN bew.strasse = 5 THEN 1 END) as zustand_5,
+                COUNT(CASE WHEN bew.strasse = 6 THEN 1 END) as zustand_6,
+                COUNT(CASE WHEN b.[abschnitte-id] IS NULL THEN 1 END) as nicht_zugeordnet,
+                COUNT(CASE WHEN b.[abschnitte-id] IS NOT NULL THEN 1 END) as zugeordnet
             FROM [dbo].[bilder] b
             LEFT JOIN [dbo].[bewertung] bew ON b.Id = bew.[bilder-id]
-            WHERE b.[projects-id] = ? AND bew.[bilder-id] IS NULL
+            WHERE b.[projects-id] = ?
         ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['nicht_bewertet'] = $stmt->fetchColumn();
+        $stmt->execute([$projektId]);
+        $bildStats = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Statistiken für Straßenabschnitte (aus dbo.abschnitte)
-        // Gesamtzahl der Abschnitte für das Projekt und erste ID für Link
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) 
-            FROM [dbo].[abschnitte] 
-            WHERE [projects-id] = ?
-        ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['straßenabschnitte']['gesamt'] = $stmt->fetchColumn();
-        
-        // Erste Abschnitts-ID für "Gesamtzahl" Link ermitteln
-        $stmt = $conn->prepare("
-            SELECT [Id] 
-            FROM [dbo].[abschnitte] 
-            WHERE [projects-id] = ?
-            ORDER BY [Id]
-        ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $firstId = $stmt->fetchColumn();
-        $statistics['straßenabschnitte']['gesamt_first_id'] = $firstId ?: null;
-        
-        // Anzahl der Abschnitte pro Bewertungsklasse (strasse) und erste ID für Links
-        for ($i = 1; $i <= 6; $i++) {
-            $stmt = $conn->prepare("
-                SELECT COUNT(*) 
-                FROM [dbo].[abschnitte] 
-                WHERE [projects-id] = ? AND [strasse] = ?
-            ");
-            $stmt->execute([$_SESSION['PROJEKT_ID'], $i]);
-            $statistics['straßenabschnitte']['zustand_' . $i] = $stmt->fetchColumn();
-            
-            // Erste Abschnitts-ID für Link ermitteln
-            $stmt = $conn->prepare("
-                SELECT [Id] 
-                FROM [dbo].[abschnitte] 
-                WHERE [projects-id] = ? AND [strasse] = ?
-                ORDER BY [Id]
-            ");
-            $stmt->execute([$_SESSION['PROJEKT_ID'], $i]);
-            $firstId = $stmt->fetchColumn();
-            $statistics['straßenabschnitte']['zustand_' . $i . '_first_id'] = $firstId ?: null;
+        if ($bildStats) {
+            $statistics['gesamt'] = (int)($bildStats['gesamt'] ?? 0);
+            $statistics['nicht_bewertet'] = (int)($bildStats['nicht_bewertet'] ?? 0);
+            $statistics['zustand_1'] = (int)($bildStats['zustand_1'] ?? 0);
+            $statistics['zustand_2'] = (int)($bildStats['zustand_2'] ?? 0);
+            $statistics['zustand_3'] = (int)($bildStats['zustand_3'] ?? 0);
+            $statistics['zustand_4'] = (int)($bildStats['zustand_4'] ?? 0);
+            $statistics['zustand_5'] = (int)($bildStats['zustand_5'] ?? 0);
+            $statistics['zustand_6'] = (int)($bildStats['zustand_6'] ?? 0);
+            $statistics['netzknoten']['nicht_zugeordnet'] = (int)($bildStats['nicht_zugeordnet'] ?? 0);
+            $statistics['netzknoten']['zugeordnet'] = (int)($bildStats['zugeordnet'] ?? 0);
+        } else {
+            // Fallback-Werte
+            $statistics['gesamt'] = 0;
+            $statistics['nicht_bewertet'] = 0;
+            for ($i = 1; $i <= 6; $i++) {
+                $statistics['zustand_' . $i] = 0;
+            }
+            $statistics['netzknoten']['nicht_zugeordnet'] = 0;
+            $statistics['netzknoten']['zugeordnet'] = 0;
         }
         
-        // Anzahl der nicht bewerteten Abschnitte (strasse = NULL) und erste ID für Link
+        // 2. Alle Abschnitts-Statistiken in EINER Abfrage mit GROUP BY
         $stmt = $conn->prepare("
-            SELECT COUNT(*) 
-            FROM [dbo].[abschnitte] 
-            WHERE [projects-id] = ? AND [strasse] IS NULL
+            SELECT 
+                strasse,
+                COUNT(*) as anzahl,
+                MIN([Id]) as erste_id
+            FROM [dbo].[abschnitte]
+            WHERE [projects-id] = ?
+            GROUP BY strasse
         ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['straßenabschnitte']['nicht_bewertet'] = $stmt->fetchColumn();
+        $stmt->execute([$projektId]);
+        $abschnittStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Erste Abschnitts-ID für "Nicht bewertet" Link ermitteln
-        $stmt = $conn->prepare("
-            SELECT [Id] 
-            FROM [dbo].[abschnitte] 
-            WHERE [projects-id] = ? AND [strasse] IS NULL
-            ORDER BY [Id]
-        ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $firstId = $stmt->fetchColumn();
-        $statistics['straßenabschnitte']['nicht_bewertet_first_id'] = $firstId ?: null;
+        // Initialisiere alle Werte
+        $statistics['straßenabschnitte']['gesamt'] = 0;
+        $statistics['straßenabschnitte']['gesamt_first_id'] = null;
+        $statistics['straßenabschnitte']['nicht_bewertet'] = 0;
+        $statistics['straßenabschnitte']['nicht_bewertet_first_id'] = null;
         
-        // Netzknoten-Zuordnung Statistiken
-        // Anzahl der Bilder mit abschnitte-id = NULL (nicht zugeordnet)
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) 
-            FROM [dbo].[bilder] 
-            WHERE [projects-id] = ? AND [abschnitte-id] IS NULL
-        ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['netzknoten']['nicht_zugeordnet'] = $stmt->fetchColumn();
+        // Initialisiere Zustände 1-6
+        for ($i = 1; $i <= 6; $i++) {
+            $statistics['straßenabschnitte']['zustand_' . $i] = 0;
+            $statistics['straßenabschnitte']['zustand_' . $i . '_first_id'] = null;
+        }
         
-        // Anzahl der Bilder mit abschnitte-id <> NULL (zugeordnet)
-        $stmt = $conn->prepare("
-            SELECT COUNT(*) 
-            FROM [dbo].[bilder] 
-            WHERE [projects-id] = ? AND [abschnitte-id] IS NOT NULL
-        ");
-        $stmt->execute([$_SESSION['PROJEKT_ID']]);
-        $statistics['netzknoten']['zugeordnet'] = $stmt->fetchColumn();
+        // Verarbeite die gruppierten Ergebnisse
+        $minId = null;
+        foreach ($abschnittStats as $row) {
+            $strasse = $row['strasse'];
+            $anzahl = (int)$row['anzahl'];
+            $ersteId = $row['erste_id'];
+            
+            $statistics['straßenabschnitte']['gesamt'] += $anzahl;
+            
+            // Erste Gesamt-ID (kleinste ID überhaupt)
+            if ($minId === null || $ersteId < $minId) {
+                $minId = $ersteId;
+            }
+            
+            if ($strasse === null) {
+                $statistics['straßenabschnitte']['nicht_bewertet'] = $anzahl;
+                $statistics['straßenabschnitte']['nicht_bewertet_first_id'] = $ersteId;
+            } elseif ($strasse >= 1 && $strasse <= 6) {
+                $statistics['straßenabschnitte']['zustand_' . $strasse] = $anzahl;
+                $statistics['straßenabschnitte']['zustand_' . $strasse . '_first_id'] = $ersteId;
+            }
+        }
+        
+        // Setze die erste Gesamt-ID
+        if ($minId !== null) {
+            $statistics['straßenabschnitte']['gesamt_first_id'] = $minId;
+        }
         
     } catch (PDOException $e) {
         $statistics['error'] = 'Fehler: ' . htmlspecialchars($e->getMessage());
+        error_log('Fehler beim Laden der Statistiken: ' . $e->getMessage());
     }
 
 } else {
@@ -159,10 +148,10 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
     <?php if (isset($statistics['error'])): ?>
         <p style="color: red;"><?= $statistics['error'] ?></p>
     <?php else: ?>
-        <!-- Drei-Spalten-Layout -->
-        <div style="display: flex; gap: 15px; margin-top: 20px; justify-content: flex-start; align-items: flex-start;">
-            <!-- Linke Spalte: Straßenbewertung -->
-            <div style="flex: 1;">
+        <!-- Ein-Spalten-Layout -->
+        <div style="margin-top: 20px;">
+            <!-- Spalte: Straßenbewertung -->
+            <div style="max-width: 600px;">
                 <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.3rem;">Straßenbewertung</h3>
                 <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <thead>
@@ -255,235 +244,7 @@ if (!empty($_SESSION['PROJEKT_ID'])) {
                     </tbody>
                 </table>
             </div>
-            
-            <!-- Rechte Spalte: Netzknoten -->
-            <div style="flex: 1;">
-                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.3rem;">Netzknoten</h3>
-                
-                <!-- Netzknoten Tabelle -->
-                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Modell</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $geojsonDir = __DIR__ . '/zuordnung/geojson/';
-                        $geojsonFiles = [];
-                        
-                        if (is_dir($geojsonDir)) {
-                            $files = scandir($geojsonDir);
-                            foreach ($files as $file) {
-                                if (pathinfo($file, PATHINFO_EXTENSION) === 'geojson') {
-                                    $geojsonFiles[] = $file;
-                                }
-                            }
-                        }
-                        
-                        if (empty($geojsonFiles)): ?>
-                            <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Keine Datei vorhanden</td>
-                            </tr>
-                        <?php else: ?>
-                            <?php foreach ($geojsonFiles as $file): ?>
-                                <tr>
-                                    <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">
-                                        <a href="#" onclick="openGeoJSONPopup('<?= htmlspecialchars($file) ?>')" style="color: #007bff; text-decoration: none; font-weight: 500;">
-                                            <?= htmlspecialchars($file) ?>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-                
-                <!-- Zuordnung Netzknoten Tabelle -->
-                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Zuordnung Netzknoten</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Anzahl</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zugeordnet</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #007bff;">
-                                <?php 
-                                $zugeordnet = $statistics['netzknoten']['zugeordnet'] ?? 0;
-                                if ($zugeordnet > 0): 
-                                ?>
-                                    <a href="/bewertung/bewertung.php?filter=zugeordnet" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($zugeordnet) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($zugeordnet) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Nicht zugeordnet</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #6c757d;">
-                                <?php 
-                                $nichtZugeordnet = $statistics['netzknoten']['nicht_zugeordnet'] ?? 0;
-                                if ($nichtZugeordnet > 0): 
-                                ?>
-                                    <a href="/bewertung/bewertung.php?filter=nicht_zugeordnet" style="color: #6c757d; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($nichtZugeordnet) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($nichtZugeordnet) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Dritte Spalte: Straßenabschnitte -->
-            <div style="flex: 1;">
-                <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.3rem;">Straßenabschnitte</h3>
-                <table style="width: auto; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <thead>
-                        <tr style="background: #f8f9fa;">
-                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Kategorie</th>
-                            <th style="padding: 12px; text-align: right; border-bottom: 2px solid #dee2e6; font-weight: 600; color: #495057;">Anzahl</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Gesamtzahl der Abschnitte:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #007bff;">
-                                <?php 
-                                $gesamtAbschnitte = $statistics['straßenabschnitte']['gesamt'] ?? 0;
-                                ?>
-                                <?php if ($gesamtAbschnitte > 0 && $statistics['straßenabschnitte']['gesamt_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['gesamt_first_id']) ?>" style="color: #007bff; text-decoration: none; font-weight: 600;"><?= htmlspecialchars($gesamtAbschnitte) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($gesamtAbschnitte) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 1:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_1'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_1_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_1_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 2:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_2'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_2_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_2_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 3:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_3'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_3_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_3_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 4:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_4'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_4_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_4_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 5:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_5'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_5_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_5_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Zustand 6:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['zustand_6'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['zustand_6_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['zustand_6_first_id']) ?>" style="color: #007bff; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 12px; border-bottom: 1px solid #dee2e6;">Nicht bewertet:</td>
-                            <td style="padding: 12px; text-align: right; border-bottom: 1px solid #dee2e6; color: #6c757d;">
-                                <?php 
-                                $count = $statistics['straßenabschnitte']['nicht_bewertet'] ?? 0;
-                                ?>
-                                <?php if ($count > 0 && $statistics['straßenabschnitte']['nicht_bewertet_first_id']): ?>
-                                    <a href="/bewertung/abschnitt-bewertung.php?abschnittId=<?= htmlspecialchars($statistics['straßenabschnitte']['nicht_bewertet_first_id']) ?>" style="color: #6c757d; text-decoration: none;"><?= htmlspecialchars($count) ?></a>
-                                <?php else: ?>
-                                    <?= htmlspecialchars($count) ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-                 </div>
-         
-         <!-- GeoJSON Popup wird aus zuordnung/geojson_popup.html geladen -->
-         <iframe id="geojsonPopupFrame" src="../zuordnung/geojson_popup.html" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; border: none;"></iframe>
-         
-         <script>
-         function openGeoJSONPopup(filename) {
-             const frame = document.getElementById('geojsonPopupFrame');
-             frame.style.display = 'block';
-             
-             // Warten bis das iframe geladen ist, dann die Funktion aufrufen
-             frame.onload = function() {
-                 frame.contentWindow.openGeoJSONPopup(filename);
-             };
-             
-             // Falls das iframe bereits geladen ist
-             if (frame.contentWindow.openGeoJSONPopup) {
-                 frame.contentWindow.openGeoJSONPopup(filename);
-             }
-         }
-         
-         // Event-Listener für Schließen-Event vom iframe
-         window.addEventListener('message', function(event) {
-             if (event.data === 'closeGeoJSONPopup') {
-                 document.getElementById('geojsonPopupFrame').style.display = 'none';
-             }
-         });
-         </script>
+        </div>
      <?php endif; ?>
  <?php elseif (is_string($aktuellesProjekt) && !empty($aktuellesProjekt)): ?>
      <p><?= $aktuellesProjekt ?></p>

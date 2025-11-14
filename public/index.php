@@ -32,6 +32,8 @@ require_once __DIR__ . '/../config/database.php';
 // Controller laden
 require_once __DIR__ . '/../php/controller/HomeController.php';
 require_once __DIR__ . '/../php/controller/ProjectController.php';
+require_once __DIR__ . '/../php/controller/NetzknotenController.php';
+require_once __DIR__ . '/../php/controller/AbschnittController.php';
 
 // Routing über GET-Parameter
 $path = $_GET['path'] ?? '';
@@ -45,6 +47,24 @@ if ($path === '' || $path === 'index.php') {
 } elseif ($path === 'bewertungm') {
     // Projektauswahl-Seite für manuelle Bildbewertung
     $controller = new ProjectController();
+    
+    if ($requestMethod === 'POST' && isset($_POST['auswahl'])) {
+        $controller->selectProject();
+    } else {
+        $controller->index();
+    }
+} elseif ($path === 'netzknoten') {
+    // Netzknoten Modell - Projektauswahl-Seite
+    $controller = new NetzknotenController();
+    
+    if ($requestMethod === 'POST' && isset($_POST['auswahl'])) {
+        $controller->selectProject();
+    } else {
+        $controller->index();
+    }
+} elseif ($path === 'abschnitt') {
+    // Abschnittsbewertung - Projektauswahl-Seite
+    $controller = new AbschnittController();
     
     if ($requestMethod === 'POST' && isset($_POST['auswahl'])) {
         $controller->selectProject();

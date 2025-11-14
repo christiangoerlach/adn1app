@@ -113,14 +113,7 @@
         .menu-card h2 {
             font-size: 24px;
             color: #003366;
-            margin-bottom: 15px;
-        }
-        
-        .menu-card p {
-            font-size: 14px;
-            color: #666;
             margin-bottom: 20px;
-            line-height: 1.6;
         }
         
         .menu-card-button {
@@ -193,15 +186,19 @@
         <div class="menu-card bewertung">
             <div class="menu-card-icon">⭐</div>
             <h2>Manuelle Bildbewertung</h2>
-            <p>Projekte auswählen und Bilder bewerten</p>
             <a href="/index.php?path=bewertungm" class="menu-card-button">Öffnen</a>
         </div>
         
         <div class="menu-card karte">
             <div class="menu-card-icon">🗺️</div>
-            <h2>Kartenansicht</h2>
-            <p>Projektdaten auf einer interaktiven Karte anzeigen</p>
-            <a href="/index.php?path=map" class="menu-card-button">Öffnen</a>
+            <h2>Netzknoten Modell</h2>
+            <a href="/index.php?path=netzknoten" class="menu-card-button">Öffnen</a>
+        </div>
+        
+        <div class="menu-card tools">
+            <div class="menu-card-icon">📋</div>
+            <h2>Abschnittsbewertung</h2>
+            <a href="/index.php?path=abschnitt" class="menu-card-button">Öffnen</a>
         </div>
         
         <!-- Weitere Karten können hier hinzugefügt werden -->

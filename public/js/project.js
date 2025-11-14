@@ -34,25 +34,56 @@ if (document.readyState === 'loading') {
 function selectProject(projectId) {
     const formData = new FormData();
     formData.append('auswahl', projectId);
+    
+    // UI-Status speichern
+    const select = document.getElementById('projekt-auswahl');
+    const originalValue = select.value;
+    const content = document.getElementById('projekt-content');
+    const originalContent = content.innerHTML;
+    
+    // Ladeindikator anzeigen
+    select.disabled = true;
+    content.innerHTML = '<div style="padding: 20px; text-align: center;"><p>Projekt wird geladen...</p><div style="border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto;"></div></div>';
+    
+    // CSS für Spinner-Animation hinzufügen, falls noch nicht vorhanden
+    if (!document.getElementById('spinner-style')) {
+        const style = document.createElement('style');
+        style.id = 'spinner-style';
+        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+    }
 
     // Projekt auswählen (an /index.php?path=bewertungm senden)
     fetch('/index.php?path=bewertungm', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Seite neu laden, um Statistiken zu aktualisieren
             window.location.reload();
         } else {
+            // Fehler: Original-Zustand wiederherstellen
+            select.disabled = false;
+            select.value = originalValue;
+            content.innerHTML = originalContent;
             console.error('Fehler beim Auswählen des Projekts:', data.error);
             alert('Fehler beim Auswählen des Projekts: ' + (data.error || 'Unbekannter Fehler'));
         }
     })
     .catch(error => {
+        // Fehler: Original-Zustand wiederherstellen
+        select.disabled = false;
+        select.value = originalValue;
+        content.innerHTML = originalContent;
         console.error('Fehler:', error);
-        alert('Fehler beim Auswählen des Projekts');
+        alert('Fehler beim Auswählen des Projekts. Bitte versuchen Sie es erneut.');
     });
 }
 
