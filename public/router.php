@@ -1,6 +1,6 @@
 <?php
-/**
- * Router für PHP Built-in Server
+/**  
+ * Router für PHP Built-in Server.
  * Leitet alle Anfragen an index.php weiter (außer existierende Dateien)
  */
 
