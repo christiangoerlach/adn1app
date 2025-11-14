@@ -35,16 +35,18 @@ if (!defined('APP_BUILD_DATE')) {
         $gitDate = @shell_exec($gitCommand);
         if ($gitDate) {
             $gitDate = trim($gitDate);
-            // Konvertiere UTC-Zeit in lokale Zeitzone (Europe/Berlin)
+            // Speichere immer in UTC für Konsistenz zwischen localhost und Azure
             $dateTime = new DateTime($gitDate, new DateTimeZone('UTC'));
-            $dateTime->setTimezone(new DateTimeZone('Europe/Berlin'));
             $buildDate = $dateTime->format('Y-m-d H:i:s');
         }
     }
     
-    // Fallback: Nutze Filemtime dieser Datei mit Uhrzeit (bereits in lokaler Zeitzone)
+    // Fallback: Nutze Filemtime dieser Datei mit Uhrzeit
+    // Konvertiere immer in UTC für Konsistenz zwischen localhost und Azure
     if (!$buildDate) {
-        $buildDate = date('Y-m-d H:i:s', filemtime(__FILE__));
+        $timestamp = filemtime(__FILE__);
+        $dateTime = new DateTime('@' . $timestamp, new DateTimeZone('UTC'));
+        $buildDate = $dateTime->format('Y-m-d H:i:s');
     }
     
     define('APP_BUILD_DATE', $buildDate);

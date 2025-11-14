@@ -210,7 +210,15 @@
 
 <footer class="footer">
     <div class="footer-version">
-        Zuletzt geändert: <?= date('d.m.Y H:i', strtotime(APP_BUILD_DATE)) ?> Uhr
+        Zuletzt geändert: <?php
+            // Stelle sicher, dass die Zeitzone auf Europe/Berlin gesetzt ist
+            date_default_timezone_set('Europe/Berlin');
+            // Interpretiere APP_BUILD_DATE als UTC (Azure-Server laufen in UTC)
+            // und konvertiere es nach Europe/Berlin
+            $dateTime = new DateTime(APP_BUILD_DATE, new DateTimeZone('UTC'));
+            $dateTime->setTimezone(new DateTimeZone('Europe/Berlin'));
+            echo $dateTime->format('d.m.Y H:i');
+        ?> Uhr
     </div>
 </footer>
 
