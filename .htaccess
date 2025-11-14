@@ -1,0 +1,26 @@
+RewriteEngine On
+
+# Alle Anfragen an index.php weiterleiten (außer existierende Dateien und Verzeichnisse)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Sicherheit: Verhindere Zugriff auf .env und andere sensible Dateien
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Verhindere Zugriff auf config, php, vendor, etc.
+<IfModule mod_rewrite.c>
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^php/ - [F,L]
+    RewriteRule ^vendor/ - [F,L]
+    RewriteRule ^\.git/ - [F,L]
+</IfModule>
+

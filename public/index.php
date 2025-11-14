@@ -20,6 +20,12 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($requestUri, PHP_URL_PATH);
 $path = trim($path, '/');
 
+// Debug: Wenn wir von der Root index.php kommen, sollte der Pfad bereits korrekt sein
+// Falls der Pfad mit "public/" beginnt, entferne diesen Präfix (falls durch Root index.php weitergeleitet)
+if (strpos($path, 'public/') === 0) {
+    $path = substr($path, 7); // "public/" = 7 Zeichen entfernen
+}
+
 // Einfaches Routing
 if ($path === '' || $path === 'index.php') {
     // Neue Übersichtsseite
