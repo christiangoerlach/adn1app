@@ -37,6 +37,20 @@ require_once __DIR__ . '/../php/controller/ProjectController.php';
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
+// Azure-spezifisch: Nutze die Azure-Header für die ursprüngliche URL
+// Diese enthalten den Pfad vor der .htaccess-Weiterleitung
+if (isset($_SERVER['HTTP_X_ORIGINAL_URL'])) {
+    $requestUri = $_SERVER['HTTP_X_ORIGINAL_URL'];
+} elseif (isset($_SERVER['HTTP_X_WAWS_UNENCODED_URL'])) {
+    $requestUri = $_SERVER['HTTP_X_WAWS_UNENCODED_URL'];
+} elseif (isset($_SERVER['REDIRECT_URL'])) {
+    // Fallback: REDIRECT_URL enthält den ursprünglichen Pfad
+    $requestUri = $_SERVER['REDIRECT_URL'];
+    if (!empty($_SERVER['QUERY_STRING'])) {
+        $requestUri .= '?' . $_SERVER['QUERY_STRING'];
+    }
+}
+
 // Entferne Query-String und führende Slashes
 $path = parse_url($requestUri, PHP_URL_PATH);
 if ($path === false) {
@@ -47,7 +61,7 @@ $path = trim($path, '/');
 // Azure: Wenn SCRIPT_NAME mit /index.php endet, könnte der Pfad falsch sein
 // In diesem Fall versuchen wir, den Pfad aus REQUEST_URI zu extrahieren
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-if (strpos($scriptName, '/index.php') !== false && $path === 'index.php') {
+if (strpos($scriptName, '/index.php') !== false && ($path === 'index.php' || $path === '')) {
     // Versuche, den echten Pfad zu extrahieren
     if (isset($_SERVER['REDIRECT_URL'])) {
         $path = trim($_SERVER['REDIRECT_URL'], '/');
@@ -208,6 +222,8 @@ if ($path === '' || $path === 'index.php') {
         <li>HTTP_HOST: <?= htmlspecialchars($_SERVER['HTTP_HOST'] ?? 'N/A') ?></li>
         <li>REDIRECT_URL: <?= htmlspecialchars($_SERVER['REDIRECT_URL'] ?? 'N/A') ?></li>
         <li>ORIG_PATH_INFO: <?= htmlspecialchars($_SERVER['ORIG_PATH_INFO'] ?? 'N/A') ?></li>
+        <li>HTTP_X_ORIGINAL_URL: <?= htmlspecialchars($_SERVER['HTTP_X_ORIGINAL_URL'] ?? 'N/A') ?></li>
+        <li>HTTP_X_WAWS_UNENCODED_URL: <?= htmlspecialchars($_SERVER['HTTP_X_WAWS_UNENCODED_URL'] ?? 'N/A') ?></li>
         <?php if (defined('APP_BASE_PATH')): ?>
         <li>APP_BASE_PATH: <?= htmlspecialchars(constant('APP_BASE_PATH')) ?></li>
         <?php endif; ?>
