@@ -13,12 +13,27 @@ require_once __DIR__ . '/../php/controller/HomeController.php';
 require_once __DIR__ . '/../php/controller/ProjectController.php';
 
 // Routing
-$requestUri = $_SERVER['REQUEST_URI'];
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 // Entferne Query-String und führende Slashes
 $path = parse_url($requestUri, PHP_URL_PATH);
+if ($path === false) {
+    $path = '/';
+}
 $path = trim($path, '/');
+
+// Azure: Wenn SCRIPT_NAME mit /index.php endet, könnte der Pfad falsch sein
+// In diesem Fall versuchen wir, den Pfad aus REQUEST_URI zu extrahieren
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+if (strpos($scriptName, '/index.php') !== false && $path === 'index.php') {
+    // Versuche, den echten Pfad zu extrahieren
+    if (isset($_SERVER['REDIRECT_URL'])) {
+        $path = trim($_SERVER['REDIRECT_URL'], '/');
+    } elseif (isset($_SERVER['ORIG_PATH_INFO'])) {
+        $path = trim($_SERVER['ORIG_PATH_INFO'], '/');
+    }
+}
 
 // Debug: Wenn wir von der Root index.php kommen, sollte der Pfad bereits korrekt sein
 // Falls der Pfad mit "public/" beginnt, entferne diesen Präfix (falls durch Root index.php weitergeleitet)
@@ -39,10 +54,8 @@ if (defined('APP_BASE_PATH')) {
     }
 }
 
-// Debug-Modus: Falls APP_DEBUG aktiviert ist, gebe Pfad-Informationen aus
-if (defined('APP_DEBUG') && constant('APP_DEBUG')) {
-    error_log("Routing Debug - REQUEST_URI: $requestUri, Path: $path");
-}
+// Debug-Modus: Immer aktiv für Diagnose (kann später entfernt werden)
+error_log("Routing Debug - REQUEST_URI: $requestUri, Path: $path, SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? 'N/A'));
 
 // Einfaches Routing
 if ($path === '' || $path === 'index.php') {
@@ -152,18 +165,24 @@ if ($path === '' || $path === 'index.php') {
     http_response_code(404);
     echo '<h1>404 - Seite nicht gefunden</h1>';
     echo '<p>Die angeforderte Seite existiert nicht.</p>';
-    if (defined('APP_DEBUG') && constant('APP_DEBUG')) {
-        echo '<p><strong>Debug-Informationen:</strong></p>';
-        echo '<ul>';
-        echo '<li>REQUEST_URI: ' . htmlspecialchars($requestUri) . '</li>';
-        echo '<li>Erkannter Pfad: ' . htmlspecialchars($path) . '</li>';
-        echo '<li>REQUEST_METHOD: ' . htmlspecialchars($requestMethod) . '</li>';
-        if (defined('APP_BASE_PATH')) {
-            echo '<li>APP_BASE_PATH: ' . htmlspecialchars(constant('APP_BASE_PATH')) . '</li>';
-        }
-        echo '<li>SCRIPT_NAME: ' . htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '') . '</li>';
-        echo '<li>PHP_SELF: ' . htmlspecialchars($_SERVER['PHP_SELF'] ?? '') . '</li>';
-        echo '</ul>';
+    // Temporär: Immer Debug-Informationen anzeigen
+    echo '<p><strong>Debug-Informationen:</strong></p>';
+    echo '<ul>';
+    echo '<li>REQUEST_URI: ' . htmlspecialchars($requestUri) . '</li>';
+    echo '<li>Erkannter Pfad: ' . htmlspecialchars($path) . '</li>';
+    echo '<li>REQUEST_METHOD: ' . htmlspecialchars($requestMethod) . '</li>';
+    echo '<li>SCRIPT_NAME: ' . htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? 'N/A') . '</li>';
+    echo '<li>PHP_SELF: ' . htmlspecialchars($_SERVER['PHP_SELF'] ?? 'N/A') . '</li>';
+    echo '<li>PATH_INFO: ' . htmlspecialchars($_SERVER['PATH_INFO'] ?? 'N/A') . '</li>';
+    echo '<li>QUERY_STRING: ' . htmlspecialchars($_SERVER['QUERY_STRING'] ?? 'N/A') . '</li>';
+    echo '<li>HTTP_HOST: ' . htmlspecialchars($_SERVER['HTTP_HOST'] ?? 'N/A') . '</li>';
+    echo '<li>REDIRECT_URL: ' . htmlspecialchars($_SERVER['REDIRECT_URL'] ?? 'N/A') . '</li>';
+    echo '<li>ORIG_PATH_INFO: ' . htmlspecialchars($_SERVER['ORIG_PATH_INFO'] ?? 'N/A') . '</li>';
+    if (defined('APP_BASE_PATH')) {
+        echo '<li>APP_BASE_PATH: ' . htmlspecialchars(constant('APP_BASE_PATH')) . '</li>';
     }
+    echo '<li>DOCUMENT_ROOT: ' . htmlspecialchars($_SERVER['DOCUMENT_ROOT'] ?? 'N/A') . '</li>';
+    echo '<li>__DIR__: ' . htmlspecialchars(__DIR__) . '</li>';
+    echo '</ul>';
     echo '<p><a href="/">Zurück zur Übersicht</a></p>';
 }
