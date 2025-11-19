@@ -104,15 +104,30 @@ docker-compose exec web php -m  # Zeigt installierte Extensions
 
 ### Was ist identisch:
 - ✅ nginx als Webserver
-- ✅ PHP 8.2-FPM
+- ✅ **PHP 8.4-FPM** (wie Azure)
 - ✅ Gleiche nginx-Konfiguration (Routing, Sicherheit)
 - ✅ Gleiche PHP-Einstellungen (Memory, Timeout, etc.)
 - ✅ **Gleiche Azure SQL Database** - Verwendet exakt die gleiche Datenbank wie Azure
+- ✅ **Gleiche BASE_URL-Erkennung** - Automatische Erkennung der Umgebung
 
 ### Was unterscheidet sich:
 - ⚠️ **HTTPS**: Lokal HTTP, Azure HTTPS (kann mit Reverse Proxy ergänzt werden)
-- ⚠️ **Azure-spezifische Header**: `HTTP_X_MS_CLIENT_PRINCIPAL_NAME` wird lokal nicht gesetzt
+- ⚠️ **Azure-spezifische Header**: `HTTP_X_MS_CLIENT_PRINCIPAL_NAME` wird lokal nicht gesetzt (kann in nginx.conf simuliert werden)
 - ⚠️ **Dateisystem**: Lokal Volume-Mount, Azure Azure Storage (kann konfiguriert werden)
+
+## Azure-Header simulieren (Optional)
+
+Für lokale Tests der Authentifizierung kannst du Azure-Header in der nginx-Konfiguration simulieren:
+
+1. Öffne `docker/nginx.conf`
+2. Suche nach `# add_header X-MS-CLIENT-PRINCIPAL-NAME`
+3. Entkommentiere die Zeile und setze deine Test-E-Mail:
+   ```nginx
+   add_header X-MS-CLIENT-PRINCIPAL-NAME "test@example.com" always;
+   ```
+4. Starte nginx neu: `docker compose restart nginx`
+
+**Hinweis:** Dies ist nur für lokale Tests gedacht und sollte nicht in Produktion verwendet werden.
 
 ## Azure SQL Firewall konfigurieren
 

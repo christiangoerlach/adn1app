@@ -1,3 +1,12 @@
+<?php
+session_start();
+
+// Prüfen ob ein Projekt ausgewählt ist
+if (!isset($_SESSION['PROJEKT_ID']) || empty($_SESSION['PROJEKT_ID'])) {
+    header('Location: /index.php?path=bewertungm');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -644,11 +653,12 @@
 <script>
 // Basis-URL dynamisch bestimmen (funktioniert lokal und auf Azure)
 function getBaseUrl() {
-    // Wenn wir bereits im bewertung-Verzeichnis sind, verwende relativen Pfad
+    // Wenn wir bereits im bewertung-Verzeichnis sind, verwende /bewertung als Base
     const path = window.location.pathname;
     if (path.includes('/bewertung/')) {
-        // Wir sind bereits im bewertung-Verzeichnis - verwende relative Pfade
-        return '';
+        // Wir sind bereits im bewertung-Verzeichnis - BASE_URL sollte /bewertung sein
+        // damit bilder.php korrekt als /bewertung/bilder.php aufgerufen wird
+        return '/bewertung';
     }
     // Ansonsten verwende absoluten Pfad
     return '/bewertung';
@@ -1085,16 +1095,26 @@ function loadImages() {
     // bildId wird nicht an bilder.php weitergegeben, da es nur für die Navigation verwendet wird
     
     fetch(fetchUrl)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Bilder-Response erhalten:', data);
+            
             // Expect data.images to be an array of URLs
             if (Array.isArray(data.images)) {
                 images = data.images;
             } else if (Array.isArray(data)) {
                 images = data;
             } else {
+                console.warn('Unerwartete Datenstruktur:', data);
                 images = [];
             }
+
+            console.log('Bilder geladen:', images.length, 'Bilder');
 
             // Wenn eine spezifische Bild-ID übergeben wurde, zu diesem Bild springen
             if (bildId !== '') {
@@ -1105,13 +1125,14 @@ function loadImages() {
                     currentIndex = 0;
                 }
             } else {
-            currentIndex = 0;
+                currentIndex = 0;
             }
             
             updateImage();
         })
         .catch(error => {
             console.error('Fehler beim Laden der Bilder:', error);
+            console.error('URL war:', fetchUrl);
             images = [];
             updateImage();
         });

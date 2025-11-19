@@ -16,8 +16,16 @@ $wert = $_GET['wert'] ?? null;
 $abschnittId = $_GET['abschnittId'] ?? null;
 $bildId = $_GET['bildId'] ?? null;
 
-// Debug-Ausgabe (entfernen nach dem Testen)
-error_log("bilder.php - Filter: " . $filter . ", Wert: " . ($wert ?? 'null') . ", AbschnittId: " . ($abschnittId ?? 'null') . ", BildId: " . ($bildId ?? 'null'));
+// Debug-Ausgabe für Fehlerbehandlung
+error_log("bilder.php - Filter: " . $filter . ", Wert: " . ($wert ?? 'null') . ", AbschnittId: " . ($abschnittId ?? 'null') . ", BildId: " . ($bildId ?? 'null') . ", ProjektId: " . $projektId);
+
+// Prüfe ob Datenbankverbindung existiert
+if (!isset($conn)) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Datenbankverbindung fehlgeschlagen']);
+    error_log("bilder.php - Fehler: Datenbankverbindung nicht verfügbar");
+    exit;
+}
 
 // SQL-Abfrage basierend auf Filter aufbauen
 if ($filter === 'all') {
@@ -101,22 +109,29 @@ if ($filter === 'all') {
     $stmt->bindValue(':projekt_id', (int)$projektId, PDO::PARAM_INT);
 }
 
-$stmt->execute();
-
-$imageUrls = [];
-$rowCount = 0;
-
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $fileName = $row['FileName'];
-    $imageUrls[] = [
-        'id' => $row['Id'],
-        'url' => $blobBaseUrl . rawurlencode($fileName)
-    ];
-    $rowCount++;
+try {
+    $stmt->execute();
+    
+    $imageUrls = [];
+    $rowCount = 0;
+    
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $fileName = $row['FileName'];
+        $imageUrls[] = [
+            'id' => $row['Id'],
+            'url' => $blobBaseUrl . rawurlencode($fileName)
+        ];
+        $rowCount++;
+    }
+    
+    error_log("bilder.php - Gefundene Bilder: " . $rowCount . " für Projekt-ID: " . $projektId);
+    
+    // JSON-Ausgabe
+    echo json_encode($imageUrls, JSON_UNESCAPED_SLASHES);
+    
+} catch (PDOException $e) {
+    error_log("bilder.php - Datenbankfehler: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Datenbankfehler: ' . $e->getMessage()]);
 }
-
-
-
-// JSON-Ausgabe
-echo json_encode($imageUrls, JSON_UNESCAPED_SLASHES);
 ?>
