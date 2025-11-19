@@ -642,6 +642,21 @@
 </div>
 
 <script>
+// Basis-URL dynamisch bestimmen (funktioniert lokal und auf Azure)
+function getBaseUrl() {
+    // Wenn wir bereits im bewertung-Verzeichnis sind, verwende relativen Pfad
+    const path = window.location.pathname;
+    if (path.includes('/bewertung/')) {
+        // Wir sind bereits im bewertung-Verzeichnis - verwende relative Pfade
+        return '';
+    }
+    // Ansonsten verwende absoluten Pfad
+    return '/bewertung';
+}
+
+const BASE_URL = getBaseUrl();
+console.log('BASE_URL bestimmt:', BASE_URL, 'Path:', window.location.pathname);
+
 let images = [];
 let currentIndex = 0;
 let currentBildId = null;
@@ -707,7 +722,7 @@ function updateImage() {
 
 // Einfache Koordinaten-Anzeige
 function loadCoordinates(bildId) {
-    fetch(`get_coordinates.php?bildId=${bildId}`)
+    fetch(`${BASE_URL}/get_coordinates.php?bildId=${bildId}`)
         .then(response => response.json())
         .then(data => {
             const coordinatesDisplay = document.getElementById('coordinates-display');
@@ -743,7 +758,7 @@ function loadCoordinates(bildId) {
 
 // Bewertung für ein Bild laden
 function loadBewertung(bildId) {
-    fetch(`get_bewertung.php?bildId=${bildId}`)
+    fetch(`${BASE_URL}/get_bewertung.php?bildId=${bildId}`)
         .then(response => response.json())
         .then(data => {
             if (data.strasse !== undefined) {
@@ -812,7 +827,7 @@ function saveBewertung(strasse) {
     invalidateLogCache(currentBildId);
     loadLogData(currentBildId);
     
-    fetch('save_bewertung.php', {
+    fetch(`${BASE_URL}/save_bewertung.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -873,13 +888,21 @@ function showStatus(message, type) {
 
 // Dropdown-Bewertung speichern
 function saveDropdownBewertung(feld, wert) {
-    if (!currentBildId) return;
+    if (!currentBildId) {
+        console.error('saveDropdownBewertung: Keine Bild-ID vorhanden');
+        return;
+    }
+    
+    console.log('saveDropdownBewertung aufgerufen:', { feld, wert, bildId: currentBildId });
     
     // Optimistisches Update - Log-Tabelle sofort neu laden
     invalidateLogCache(currentBildId);
     loadLogData(currentBildId);
     
-    fetch('save_dropdown_bewertung.php', {
+    const url = `${BASE_URL}/save_dropdown_bewertung.php`;
+    console.log('Sende Fetch-Request an:', url);
+    
+    fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -947,7 +970,7 @@ function saveMarkierung(feld, wert) {
     invalidateLogCache(currentBildId);
     loadLogData(currentBildId);
     
-    fetch('save_markierung.php', {
+    fetch(`${BASE_URL}/save_markierung.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -986,7 +1009,7 @@ function saveNotizen(notizen) {
     invalidateLogCache(currentBildId);
     loadLogData(currentBildId);
     
-    fetch('save_notizen.php', {
+    fetch(`${BASE_URL}/save_notizen.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -1049,7 +1072,7 @@ function loadImages() {
     updateFilterInfo(filter, wert);
     
     // Filter-Parameter an bilder.php weiterleiten
-    let fetchUrl = 'bilder.php?filter=' + encodeURIComponent(filter);
+    let fetchUrl = `${BASE_URL}/bilder.php?filter=` + encodeURIComponent(filter);
     if (wert !== '') {
         fetchUrl += '&wert=' + encodeURIComponent(wert);
     }
@@ -1159,7 +1182,7 @@ let azureMapsKey = '';
 async function initAzureMap() {
     try {
         // Azure Maps Key laden
-        const response = await fetch('get_map_key.php');
+        const response = await fetch(`${BASE_URL}/get_map_key.php`);
         const data = await response.json();
         
         if (data.error) {
@@ -1228,11 +1251,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (filter === 'abschnitt' && abschnittId) {
         // Aufruf aus abschnitt-bewertung.php - zurück zu abschnitt-bewertung.php
-        backBtn.href = `abschnitt-bewertung.php?abschnittId=${abschnittId}`;
+        backBtn.href = `${BASE_URL}/abschnitt-bewertung.php?abschnittId=${abschnittId}`;
         backBtn.title = 'Zurück zum Straßenabschnitt';
     } else {
         // Aufruf aus index.php oder anderer Quelle - zurück zu index.php
-        backBtn.href = '../index.php';
+        backBtn.href = '/index.php';
         backBtn.title = 'Zurück zur Hauptseite';
     }
     
@@ -1244,15 +1267,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Dropdown-Event-Listener
-    document.querySelectorAll('.bewertung-dropdown').forEach(dropdown => {
-        dropdown.addEventListener('change', function() {
-            const feld = this.getAttribute('data-feld');
-            const wert = this.value;
-            if (wert !== '') {
+    // Dropdown-Event-Listener - Event-Delegation für dynamisch geladene Dropdowns
+    // Verhindert doppelte Registrierung und funktioniert auch für später hinzugefügte Elemente
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('bewertung-dropdown')) {
+            const dropdown = e.target;
+            const feld = dropdown.getAttribute('data-feld');
+            const wert = dropdown.value;
+            console.log('Dropdown-Change-Event:', { feld, wert, element: dropdown });
+            if (feld && wert !== '') {
                 saveDropdownBewertung(feld, parseInt(wert));
+            } else {
+                console.warn('Dropdown-Change: Fehlende Daten', { feld, wert });
             }
-        });
+        }
     });
     
     // Markierungsbutton-Event-Listener
@@ -1338,7 +1366,7 @@ function loadLogData(bildId) {
         return;
     }
     
-    fetch(`get_log_data.php?bildId=${bildId}`)
+    fetch(`${BASE_URL}/get_log_data.php?bildId=${bildId}`)
         .then(response => response.json())
         .then(data => {
             // Cache aktualisieren
@@ -1420,7 +1448,7 @@ loadImages();
 // Projektnamen laden
 async function loadProjectName() {
     try {
-        const response = await fetch('get_project_name.php');
+        const response = await fetch(`${BASE_URL}/get_project_name.php`);
         const data = await response.json();
         
         if (data.projektname) {
@@ -1437,7 +1465,7 @@ async function loadProjectName() {
 // Benutzerinformationen laden
 async function loadUserInfo() {
     try {
-        const response = await fetch('get_user_info.php');
+        const response = await fetch(`${BASE_URL}/get_user_info.php`);
         const data = await response.json();
         
         if (data.username) {
@@ -1454,7 +1482,7 @@ async function loadUserInfo() {
 // Abschnittsinformationen laden
 async function loadAbschnittInfo(bildId) {
     try {
-        const response = await fetch(`get_abschnitt_info.php?bildId=${bildId}`);
+        const response = await fetch(`${BASE_URL}/get_abschnitt_info.php?bildId=${bildId}`);
         const data = await response.json();
         
         const abschnittDisplay = document.getElementById('abschnitt-display');

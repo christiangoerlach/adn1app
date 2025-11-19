@@ -9,14 +9,17 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Dotenv\Dotenv;
 
 // Lade Umgebungsvariablen
+// Docker-Umgebungsvariablen (aus docker-compose.yml) haben Vorrang
+// Falls nicht gesetzt, wird .env Datei verwendet
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
-$dotenv->load();
+$dotenv->safeLoad(); // safeLoad überschreibt keine existierenden Umgebungsvariablen
 
 // Datenbankeinstellungen aus Umgebungsvariablen
-$serverName = $_ENV['DB_SERVER'];
-$database   = $_ENV['DB_NAME'];
-$username   = $_ENV['DB_USER'];
-$password   = $_ENV['DB_PASS'];
+// Priorität: 1. getenv() (Docker), 2. $_ENV (Dotenv), 3. Fallback
+$serverName = getenv('DB_SERVER') ?: ($_ENV['DB_SERVER'] ?? 'db');
+$database   = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'adn1app');
+$username   = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'sa');
+$password   = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? 'YourStrong@Passw0rd');
 
 // Globale Datenbankverbindung
 $conn = null;
@@ -31,7 +34,18 @@ function getDatabaseConnection() {
     
     if ($conn === null) {
         try {
-            $conn = new PDO("sqlsrv:Server=$serverName;Database=$database", $username, $password);
+            // TrustServerCertificate nur für lokale Entwicklung (Server enthält "db" oder "localhost")
+            // Für Azure-Datenbanken wird das Zertifikat normalerweise verifiziert
+            $isLocalDb = (strpos($serverName, 'db') !== false && strpos($serverName, 'database.windows.net') === false) 
+                      || strpos($serverName, 'localhost') !== false
+                      || strpos($serverName, '127.0.0.1') !== false;
+            
+            $connectionString = "sqlsrv:Server=$serverName;Database=$database";
+            if ($isLocalDb) {
+                $connectionString .= ";TrustServerCertificate=yes";
+            }
+            
+            $conn = new PDO($connectionString, $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

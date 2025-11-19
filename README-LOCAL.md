@@ -1,6 +1,37 @@
 # Lokaler Aufruf der Anwendung
 
-## Schnellstart
+## ⚠️ WICHTIG: Azure-ähnliche Umgebung
+
+**Für konsistente Ergebnisse zwischen lokal und Azure wird die Docker-Lösung empfohlen!**
+
+Siehe: [README-DOCKER.md](README-DOCKER.md) für eine vollständige Azure-ähnliche Umgebung mit nginx.
+
+## Option 1: Docker (Empfohlen - Azure-ähnlich)
+
+### Windows:
+```bash
+start-docker.bat
+```
+
+### Linux/Mac:
+```bash
+chmod +x start-docker.sh
+./start-docker.sh
+```
+
+### Oder manuell:
+```bash
+docker-compose up -d
+```
+
+Dann öffnen Sie im Browser: **http://localhost:8000**
+
+**Vorteile:**
+- ✅ Gleiche nginx-Konfiguration wie Azure
+- ✅ Gleiche PHP-Version und Einstellungen
+- ✅ Konsistente Ergebnisse zwischen lokal und Azure
+
+## Option 2: PHP Built-in Server (Schnell, aber unterschiedlich zu Azure)
 
 ### Windows:
 Doppelklick auf `start-local-server.bat` oder im Terminal:
@@ -17,11 +48,13 @@ chmod +x start-local-server.sh
 ### Manuell:
 ```bash
 cd public
-php -S localhost:8000
+php -S localhost:8000 router.php
 ```
 
 ## Dann öffnen Sie im Browser:
 **http://localhost:8000**
+
+**Hinweis:** Der PHP Built-in Server verhält sich anders als nginx in Azure. Für Tests, die Azure genau entsprechen sollen, verwenden Sie Option 1 (Docker).
 
 ## Alternative Ports
 

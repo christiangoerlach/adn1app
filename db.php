@@ -12,7 +12,9 @@ $username   = $_ENV['DB_USER'];
 $password   = $_ENV['DB_PASS'];
 
 try {
-    $conn = new PDO("sqlsrv:Server=$serverName;Database=$database", $username, $password);
+    // TrustServerCertificate für lokale Entwicklung mit selbstsignierten Zertifikaten
+    $connectionString = "sqlsrv:Server=$serverName;Database=$database;TrustServerCertificate=yes";
+    $conn = new PDO($connectionString, $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // Optional: echo "Verbindung erfolgreich.";
 } catch (PDOException $e) {

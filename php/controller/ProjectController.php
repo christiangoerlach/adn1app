@@ -50,9 +50,13 @@ class ProjectController {
      * Verarbeitet die Projektauswahl
      */
     public function selectProject() {
+        // Setze Content-Type für JSON-Response
+        header('Content-Type: application/json; charset=utf-8');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['auswahl'])) {
             http_response_code(400);
-            exit('Ungültige Anfrage');
+            echo json_encode(['success' => false, 'error' => 'Ungültige Anfrage']);
+            exit;
         }
         
         $projectId = (int) $_POST['auswahl'];
