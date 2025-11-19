@@ -5,7 +5,7 @@
     <title><?= APP_NAME ?></title>
     <link rel="icon" href="https://adn-consulting.de/sites/default/files/favicon-96x96.png" type="image/png" />
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/main.css">
 </head>
 <body>
 
@@ -82,7 +82,7 @@
     </div>
 </div>
 
-<script src="/js/project.js"></script>
+<script src="<?= BASE_URL ?>/js/project.js"></script>
 <script>
 // Zusätzliche Initialisierung nach dem Laden von index_projekt.php
 // Falls index_projekt.php asynchron geladen wird

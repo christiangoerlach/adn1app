@@ -60,6 +60,46 @@ define('PHP_PATH', BASE_PATH . '/php');
 define('VIEW_PATH', PHP_PATH . '/view');
 define('PUBLIC_PATH', BASE_PATH . '/public');
 
+// Base URL für statische Assets (CSS, JS, etc.)
+// Erkennt automatisch, ob wir in Docker (nginx root = /var/www/html/public) oder Azure sind
+function getBaseUrl() {
+    // Prüfe ob wir über Webserver aufgerufen werden (DOCUMENT_ROOT ist gesetzt)
+    $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+    
+    if (!empty($docRoot)) {
+        // Wenn DOCUMENT_ROOT auf /public endet oder public enthält, 
+        // dann ist nginx/Apache root = public, also BASE_URL = ''
+        if (strpos($docRoot, '/public') !== false || 
+            strpos($docRoot, '\public') !== false ||
+            substr($docRoot, -7) === '/public' ||
+            substr($docRoot, -7) === '\public') {
+            return ''; // Leerer String = Root-Relativ
+        }
+    }
+    
+    // Fallback: Prüfe ob wir im Web-Kontext sind durch REQUEST_URI oder SCRIPT_NAME
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    
+    // Wenn SCRIPT_NAME mit /index.php beginnt (nicht /public/index.php), 
+    // dann müssen wir /public voranstellen (typisch für Azure)
+    if (!empty($scriptName) && strpos($scriptName, '/public/') === false && strpos($scriptName, '/index.php') !== false) {
+        // Aber prüfe zuerst, ob die Datei direkt erreichbar ist
+        // Wenn /css/main.css existiert (ohne /public), dann ist BASE_URL = ''
+        return '/public';
+    }
+    
+    // Standard: Wenn nichts passt, verwende /public für Sicherheit
+    // In Docker wird DOCUMENT_ROOT normalerweise /var/www/html/public sein
+    // und die Funktion sollte vorher returnen
+    return '/public';
+}
+
+// Definiere BASE_URL für Views
+if (!defined('BASE_URL')) {
+    define('BASE_URL', getBaseUrl());
+}
+
 // Azure-Konfiguration
 define('AZURE_MAPS_KEY', $_ENV['AZURE_MAPS_KEY'] ?? '');
 define('AZURE_STORAGE_CONNECTION_STRING', $_ENV['AZURE_STORAGE_CONNECTION_STRING'] ?? '');

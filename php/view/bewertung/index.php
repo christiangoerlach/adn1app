@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Bildergalerie Bewertung</title>
-    <link rel="stylesheet" href="/css/bewertung.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/bewertung.css">
 </head>
 <body onload="InitBewertung()">
     <div class="container">
